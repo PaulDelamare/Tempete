@@ -1,0 +1,67 @@
+import nodemailer from "nodemailer";
+import handlebars from "handlebars";
+import fs from "fs";
+
+import { emailConfig } from "../../../config/email-config";
+
+interface EmailData {
+    [key: string]: unknown;
+}
+
+/**
+ * Sends an email using a specified template and dynamic data.
+ *
+ * @param to - A comma-separated list of recipient email addresses.
+ * @param sender - The sender's email address.
+ * @param subject - The subject line of the email.
+ * @param templateName - The name of the Handlebars template to use for the email body.
+ * @param data - An object containing dynamic data to be injected into the email template.
+ * @returns A Promise that resolves when all emails have been sent.
+ *
+ * @remarks
+ * - Uses Handlebars for templating and Nodemailer for sending emails.
+ * - Registers several custom Handlebars helpers for use within templates.
+ * - Reads header, footer, and main templates from the filesystem.
+ * - Sends the email to each recipient in parallel.
+ *
+ * @throws Will throw an error if reading template files fails or if sending an email fails.
+ */
+export async function sendEmail(
+    to: string,
+    sender: string,
+    subject: string,
+    templateName: string,
+    data: EmailData
+): Promise<void> {
+    const rootPath = process.cwd();
+
+    const transporter = nodemailer.createTransport(emailConfig);
+
+    const headerTemplate = handlebars.compile(fs.readFileSync(`${rootPath}/emails/layouts/header.hbs`, 'utf8'));
+    const footerTemplate = handlebars.compile(fs.readFileSync(`${rootPath}/emails/layouts/footer.hbs`, 'utf8'));
+    const template = handlebars.compile(fs.readFileSync(`${rootPath}/emails/templates/${templateName}.hbs`, 'utf8'));
+
+    const recipients = to.split(',').map(email => email.trim());
+
+    data.url = process.env.API_URL;
+    data.siteUrl = process.env.SITE_URL;
+
+    const helpers: Record<string, Handlebars.HelperDelegate> = {
+        parseJSON: (context: string) => {
+            try {
+                return JSON.parse(context);
+            } catch (error) {
+                console.error('Erreur de parsing JSON:', error);
+                return [];
+            }
+        },
+    };
+    Object.entries(helpers).forEach(([key, fn]) => handlebars.registerHelper(key, fn));
+
+    const html = template({ header: headerTemplate, footer: footerTemplate, ...data });
+    await Promise.all(
+        recipients.map(recipient =>
+            transporter.sendMail({ from: sender, to: recipient, subject, html })
+        )
+    );
+}

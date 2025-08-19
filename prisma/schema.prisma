@@ -13,3 +13,185 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// -----------------------------
+// Enums
+// -----------------------------
+enum EventStatus {
+  draft
+  published
+  cancelled
+  soldout
+  hidden
+}
+
+enum AreaType {
+  stage
+  food
+  merch
+  chill
+  service
+  info
+  medical
+}
+
+// -----------------------------
+// Models
+// -----------------------------
+
+model Event {
+  id          String      @id @default(cuid())
+  name        String
+  imgurl      String?
+  description String?
+  datestart   DateTime
+  dateend     DateTime
+  capacity    Int?        @db.Integer
+  status      EventStatus @default(draft)
+
+  // FK
+  areaId String?
+  area   Area?   @relation(fields: [areaId], references: [id], onDelete: SetNull)
+
+  // Timestamps
+  created_at  DateTime @default(now())
+  modified_at DateTime @updatedAt
+
+  // Relations
+  artists    EventArtist[]
+  tagsJoin   EventTag[]
+  mailAlerts MailAlert[]
+
+  @@index([datestart])
+  @@index([status])
+  @@index([areaId])
+}
+
+model Artist {
+  id          String   @id @default(cuid())
+  name        String
+  nickname    String?
+  links       Json?
+  bio         String?
+  imgurl      String?
+  created_at  DateTime @default(now())
+  modified_at DateTime @updatedAt
+
+  events   EventArtist[]
+  tagsJoin ArtistTag[]
+}
+
+model Area {
+  id          String   @id @default(cuid())
+  name        String
+  imgurl      String?
+  description String?
+  type        AreaType
+  latitude    Decimal? @db.Decimal(9, 6)
+  longitude   Decimal? @db.Decimal(9, 6)
+  capacity    Int?     @db.Integer
+  created_at  DateTime @default(now())
+  modified_at DateTime @updatedAt
+
+  events   Event[]
+  products Product[]
+
+  @@index([type])
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  areaId      String
+  name        String
+  description String?
+  imgurl      String?
+  price       Decimal  @db.Decimal(10, 2)
+  created_at  DateTime @default(now())
+  modified_at DateTime @updatedAt
+
+  area Area @relation(fields: [areaId], references: [id], onDelete: Cascade)
+
+  @@index([areaId])
+}
+
+model Sponsor {
+  id          String   @id @default(cuid())
+  name        String
+  imgurl      String?
+  website_url String?
+  created_at  DateTime @default(now())
+  modified_at DateTime @updatedAt
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique @db.Citext
+  name        String?
+  firstname   String?
+  roles       String[] @default([])
+  password    String
+  created_at  DateTime @default(now())
+  modified_at DateTime @updatedAt
+}
+
+model Tag {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  created_at  DateTime @default(now())
+  modified_at DateTime @updatedAt
+
+  events  EventTag[]
+  artists ArtistTag[]
+}
+
+model EventTag {
+  id      String @id @default(cuid())
+  eventId String
+  tagId   String
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  tag   Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, tagId])
+  @@index([eventId])
+  @@index([tagId])
+}
+
+model ArtistTag {
+  id       String @id @default(cuid())
+  artistId String
+  tagId    String
+
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([artistId, tagId])
+  @@index([artistId])
+  @@index([tagId])
+}
+
+model EventArtist {
+  id       String @id @default(cuid())
+  eventId  String
+  artistId String
+
+  event  Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, artistId])
+  @@index([eventId])
+  @@index([artistId])
+}
+
+model MailAlert {
+  id         String   @id @default(cuid())
+  email      String   @db.Citext
+  eventId    String
+  created_at DateTime @default(now())
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, email])
+  @@index([eventId, email])
+}

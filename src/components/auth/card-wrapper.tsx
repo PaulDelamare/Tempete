@@ -29,7 +29,7 @@ const CardWrapper = ({
     className = "",
 }: CardWrapperType) => {
     return (
-        <Card className={`w-[400px] relative ${className} border-2 shadow-md`}>
+        <Card className={`max-w-md w-full relative ${className} border-2 shadow-md`}>
             <CardHeader>
                 <CardTitle>{cardTitle}</CardTitle>
                 <CardDescription>{cardDescription}</CardDescription>

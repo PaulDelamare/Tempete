@@ -1,0 +1,67 @@
+{{{ header}}}
+
+<!-- Main card -->
+<div style="width:100%; max-width:640px; margin:0 auto;">
+     <table role="presentation" cellpadding="0" cellspacing="0" width="100%"
+          style="background:#0b0d0f; border-radius:12px; box-shadow: 0 8px 30px rgba(0,0,0,0.6);">
+          <tr>
+               <td style="padding:26px; text-align:center; font-family:sans-serif; color:#e8eef6;">
+                    <h1 style="margin:0 0 8px 0; font-size:22px; color:#ffffff;">Validation de ton compte</h1>
+                    <p style="margin:0 0 18px 0; color:#cfd8e3; font-size:14px; line-height:1.4;">
+                         Bonjour {{firstname}},<br>
+                         Merci de t'être inscrit ! Pour activer ton compte, clique sur le bouton ci-dessous.
+                    </p>
+
+                    <!-- CTA -->
+                    <div style="margin-top:14px; color:#9fb0c8; font-size:13px; word-break:break-word;">
+                         <a href="{{url}}" style="
+                              display: inline-block;
+                              padding: 15px 30px;
+                              background: linear-gradient(180deg, #1f426a, #112d4d);
+                              border: 1px solid #71a9e3;
+                              border-radius: 5px;
+                              color: #ffffff;
+                              font-family: Arial, sans-serif;
+                              font-size: 14px;
+                              font-weight: bold;
+                              text-decoration: none;
+                              text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+                              box-shadow: 0 0 15px rgba(113, 169, 227, 0.5), 
+                                             inset 0 1px 0 rgba(255, 255, 255, 0.2);
+                              -webkit-transition: all 0.3s ease-in-out;
+                              -moz-transition: all 0.3s ease-in-out;
+                              -o-transition: all 0.3s ease-in-out;
+                              transition: all 0.3s ease-in-out;
+                         ">
+                              Valider mon compte
+                         </a>
+                    </div>
+                    <p style="margin:18px 0 0 0; color:#cfd8e3; font-size:13px;">
+                         Si le bouton ne fonctionne pas, copie et colle ce lien dans ton navigateur :<br>
+                         <a href="{{url}}" style="color:#71a9e3; word-break:break-all;">{{url}}</a>
+                    </p>
+
+                    <hr
+                         style="border:none; border-top:1px solid rgba(255,255,255,0.04); margin:20px auto; width:80%;" />
+
+                    <p style="margin:0; color:#99aabf; font-size:12px;">
+                         Si tu n'as pas créé de compte, ignore ce message — le lien expirera bientôt.
+                    </p>
+               </td>
+          </tr>
+     </table>
+</div>
+
+<style>
+     @media screen and (max-width:600px) {
+          h1 {
+               font-size: 18px !important;
+          }
+
+          a {
+               padding: 10px 16px !important;
+          }
+     }
+</style>
+
+{{{ footer}}}</p>

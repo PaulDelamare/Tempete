@@ -1,67 +1,134 @@
+// src/lib/email/sendEmail.ts
 import nodemailer from "nodemailer";
 import handlebars from "handlebars";
 import fs from "fs";
+import path from "path";
 
-import { emailConfig } from "../../../config/email-config";
+import { emailConfig } from "../../../config/email-config"; // adapte le chemin si besoin
 
 interface EmailData {
     [key: string]: unknown;
 }
 
 /**
- * Sends an email using a specified template and dynamic data.
+ * sendEmail adapté pour Next.js (templates placés dans /public/emails)
  *
- * @param to - A comma-separated list of recipient email addresses.
- * @param sender - The sender's email address.
- * @param subject - The subject line of the email.
- * @param templateName - The name of the Handlebars template to use for the email body.
- * @param data - An object containing dynamic data to be injected into the email template.
- * @returns A Promise that resolves when all emails have been sent.
+ * Exige :
+ *  - public/emails/layouts/header.hbs
+ *  - public/emails/layouts/footer.hbs
+ *  - public/emails/templates/<templateName>.hbs
  *
- * @remarks
- * - Uses Handlebars for templating and Nodemailer for sending emails.
- * - Registers several custom Handlebars helpers for use within templates.
- * - Reads header, footer, and main templates from the filesystem.
- * - Sends the email to each recipient in parallel.
- *
- * @throws Will throw an error if reading template files fails or if sending an email fails.
+ * Utilisation: sendEmail("to@exemple.com", "no-reply@site.com", "Sujet", "reset-password", { name: "Toto" })
  */
+
+const compiledTemplateCache = new Map<string, Handlebars.TemplateDelegate>();
+const partialsRegistered = new Set<string>();
+let helpersRegistered = false;
+
+function readTemplateFile(filePath: string): string {
+    if (!fs.existsSync(filePath)) {
+        throw new Error(`Template introuvable : ${filePath}`);
+    }
+    return fs.readFileSync(filePath, "utf8");
+}
+
+function registerHelpersOnce() {
+    if (helpersRegistered) return;
+
+    // Exemples de helpers ; ajoute/enlève selon besoins
+    handlebars.registerHelper("parseJSON", (context: string) => {
+        try {
+            return JSON.parse(String(context));
+        } catch (err) {
+            // renvoie un tableau vide pour éviter crash si on itère sur le résultat
+            console.error("Erreur parseJSON helper:", err);
+            return [];
+        }
+    });
+
+    handlebars.registerHelper("uppercase", (str: string) => {
+        return String(str || "").toUpperCase();
+    });
+
+    helpersRegistered = true;
+}
+
 export async function sendEmail(
     to: string,
     sender: string,
     subject: string,
     templateName: string,
-    data: EmailData
+    data: EmailData = {}
 ): Promise<void> {
+    // racine du projet (Next.js)
     const rootPath = process.cwd();
+    const basePublicEmails = path.join(rootPath, "public", "emails");
 
-    const transporter = nodemailer.createTransport(emailConfig);
+    const headerPath = path.join(basePublicEmails, "layouts", "header.hbs");
+    const footerPath = path.join(basePublicEmails, "layouts", "footer.hbs");
+    const templatePath = path.join(basePublicEmails, "templates", `${templateName}.hbs`);
 
-    const headerTemplate = handlebars.compile(fs.readFileSync(`${rootPath}/emails/layouts/header.hbs`, 'utf8'));
-    const footerTemplate = handlebars.compile(fs.readFileSync(`${rootPath}/emails/layouts/footer.hbs`, 'utf8'));
-    const template = handlebars.compile(fs.readFileSync(`${rootPath}/emails/templates/${templateName}.hbs`, 'utf8'));
+    try {
+        console.log(data)
+        // vérifications
+        const headerRaw = readTemplateFile(headerPath);
+        const footerRaw = readTemplateFile(footerPath);
+        const templateRaw = readTemplateFile(templatePath);
 
-    const recipients = to.split(',').map(email => email.trim());
+        // enregistre partials si pas déjà fait
+        if (!partialsRegistered.has(headerPath)) {
+            handlebars.registerPartial("header", headerRaw);
+            partialsRegistered.add(headerPath);
+        }
+        if (!partialsRegistered.has(footerPath)) {
+            handlebars.registerPartial("footer", footerRaw);
+            partialsRegistered.add(footerPath);
+        }
 
-    data.url = process.env.API_URL;
-    data.siteUrl = process.env.SITE_URL;
+        // helpers
+        registerHelpersOnce();
 
-    const helpers: Record<string, Handlebars.HelperDelegate> = {
-        parseJSON: (context: string) => {
-            try {
-                return JSON.parse(context);
-            } catch (error) {
-                console.error('Erreur de parsing JSON:', error);
-                return [];
-            }
-        },
-    };
-    Object.entries(helpers).forEach(([key, fn]) => handlebars.registerHelper(key, fn));
+        // compile template (cache)
+        let compiledTemplate = compiledTemplateCache.get(templatePath);
+        if (!compiledTemplate) {
+            compiledTemplate = handlebars.compile(templateRaw);
+            compiledTemplateCache.set(templatePath, compiledTemplate);
+        }
 
-    const html = template({ header: headerTemplate, footer: footerTemplate, ...data });
-    await Promise.all(
-        recipients.map(recipient =>
-            transporter.sendMail({ from: sender, to: recipient, subject, html })
-        )
-    );
+        // enrichis data avec URLs si dispo
+        const mergedData: EmailData = {
+            ...data,
+            apiUrl: process.env.API_URL ?? "",
+            siteUrl: process.env.SITE_URL ?? "",
+        };
+
+        // génération HTML
+        const html = compiledTemplate(mergedData);
+
+        // create transporter
+        const transporter = nodemailer.createTransport(emailConfig);
+
+        // plusieurs destinataires séparés par , possible
+        const recipients = to.split(",").map((r) => r.trim()).filter(Boolean);
+        if (recipients.length === 0) {
+            throw new Error("Aucun destinataire fourni dans `to`.");
+        }
+
+        // envoie en parallèle
+        await Promise.all(
+            recipients.map((recipient) =>
+                transporter.sendMail({
+                    from: sender,
+                    to: recipient,
+                    subject,
+                    html,
+                })
+            )
+        );
+    } catch (err) {
+        // pour debuggage côté Next.js -> message franc et utile
+        console.error("[sendEmail] erreur:", err);
+        // rethrow pour que le caller sache que c'est en échec (API route renverra 500)
+        throw err;
+    }
 }

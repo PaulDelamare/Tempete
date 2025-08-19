@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -125,7 +125,7 @@ model Sponsor {
 
 model User {
   id          String   @id @default(cuid())
-  email       String   @unique @db.Citext
+  email       String   @unique
   name        String?
   firstname   String?
   roles       String[] @default([])
@@ -186,7 +186,7 @@ model EventArtist {
 
 model MailAlert {
   id         String   @id @default(cuid())
-  email      String   @db.Citext
+  email      String
   eventId    String
   created_at DateTime @default(now())
 

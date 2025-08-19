@@ -12,7 +12,7 @@ export const toastSuccess = (title: string, description: string) => {
 export const toastError = (title: string, description: string) => {
      toast(title, {
           description,
-          style: { background: "#fee2e2", color: "#82181a" }, // bg plus clair
+          style: { background: "#fee2e2", color: "#82181a" },
           position: "bottom-center",
           descriptionClassName: "text-xs font-medium !text-red-800",
      });

@@ -1,4 +1,5 @@
 import React from "react";
+import { Dialog, DialogOverlay, DialogContent, DialogTitle } from "@/components/ui/dialog"; // si shadcn
 
 export default function ArtistModal({
     open,
@@ -9,12 +10,15 @@ export default function ArtistModal({
     onClose: () => void;
     children: React.ReactNode;
 }) {
-    // TODO: Modal pour création/édition artiste
-    if (!open) return null;
     return (
-        <div>
-            <div onClick={onClose}>Fermer</div>
-            {children}
-        </div>
+        <Dialog open={open} onOpenChange={onClose}>
+            <DialogOverlay className="fixed inset-0 bg-black/50" />
+            <DialogContent className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded  w-full max-w-7xl p-0 border-none shadow-none gap-0">
+                <DialogTitle>
+                    <span className="sr-only h-0">Artist Modal</span>
+                </DialogTitle>
+                {children}
+            </DialogContent>
+        </Dialog>
     );
 }

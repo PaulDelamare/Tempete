@@ -4,7 +4,7 @@ import handlebars from "handlebars";
 import fs from "fs";
 import path from "path";
 
-import { emailConfig } from "../../../config/email-config"; // adapte le chemin si besoin
+import { emailConfig } from "../../config/email-config"; // adapte le chemin si besoin
 
 interface EmailData {
     [key: string]: unknown;

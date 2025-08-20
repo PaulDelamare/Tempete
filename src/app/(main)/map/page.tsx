@@ -3,14 +3,14 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { Map, Marker, Popup } from "@vis.gl/react-maplibre";
 import { formatEventDateTime } from "@/lib/utils/date";
-import { 
-    Music, 
-    UtensilsCrossed, 
-    ShoppingBag, 
-    Armchair, 
-    Settings, 
-    Info, 
-    Cross 
+import {
+    Music,
+    UtensilsCrossed,
+    ShoppingBag,
+    Armchair,
+    Settings,
+    Info,
+    Cross
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -71,7 +71,6 @@ const MapPage: React.FC = () => {
         fetchAreas();
     }, []);
 
-    // Fermer le dropdown quand on clique ailleurs
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (isSelectOpen) {
@@ -98,7 +97,7 @@ const MapPage: React.FC = () => {
 
     const getAreaIcon = (type: string) => {
         const iconProps = { size: 16, className: "text-white" };
-        
+
         switch (type) {
             case 'stage':
                 return <Music {...iconProps} />;
@@ -278,82 +277,94 @@ const MapPage: React.FC = () => {
                                     <p className="text-sm text-gray-600 break-words line-clamp-2">{selectedArea.description}</p>
                                 )}
 
-                                <div className="space-y-2">
-                                    {(() => {
-                                        const { currentEvent, nextEvent } = getCurrentAndNextEvent(selectedArea);
+                                {selectedArea.type === "stage" ? (
+                                    <div className="space-y-2">
+                                        {(() => {
+                                            const { currentEvent, nextEvent } = getCurrentAndNextEvent(selectedArea);
 
-    return (
-                                            <>
-                                                {currentEvent && (
-                                                    <div className="space-y-2">
-                                                        <div className="text-sm font-medium">En cours</div>
-                                                        <div className="rounded-md border p-2 space-y-2 bg-green-50 border-green-200">
-                                                            {currentEvent.artists?.[0]?.artist?.imgurl && (
-                                                                <img
-                                                                    src={currentEvent.artists[0].artist.imgurl}
-                                                                    alt={currentEvent.artists[0].artist.name}
-                                                                    className="w-full h-20 object-cover rounded"
-                                                                />
-                                                            )}
-        <div>
-                                                                <div className="text-sm font-medium truncate">{currentEvent.name}</div>
-                                                                <div className="text-xs text-muted-foreground">
-                                                                    {formatEventDateTime(currentEvent.datestart).date} · {formatEventDateTime(currentEvent.datestart).time}
+                                            return (
+                                                <>
+                                                    {currentEvent && (
+                                                        <div className="space-y-2">
+                                                            <div className="text-sm font-medium">En cours</div>
+                                                            <div className="rounded-md border p-2 space-y-2 bg-green-50 border-green-200">
+                                                                {currentEvent.artists?.[0]?.artist?.imgurl && (
+                                                                    <img
+                                                                        src={currentEvent.artists[0].artist.imgurl}
+                                                                        alt={currentEvent.artists[0].artist.name}
+                                                                        className="w-full h-20 object-cover rounded"
+                                                                    />
+                                                                )}
+                                                                <div>
+                                                                    <div className="text-sm font-medium truncate">{currentEvent.name}</div>
+                                                                    <div className="text-xs text-muted-foreground">
+                                                                        {formatEventDateTime(currentEvent.datestart).date} · {formatEventDateTime(currentEvent.datestart).time}
+                                                                    </div>
                                                                 </div>
+
+                                                                {currentEvent.artists?.[0]?.artist && (
+                                                                    <div className="space-y-1">
+                                                                        {currentEvent.artists[0].artist.tagsJoin?.length > 0 && (
+                                                                            <div className="flex flex-wrap gap-1">
+                                                                                {currentEvent.artists[0].artist.tagsJoin.map((tagJoin: any) => (
+                                                                                    <Badge key={tagJoin.tag.id} variant="outline" className="text-[9px] px-1 py-0.5">
+                                                                                        {tagJoin.tag.name}
+                                                                                    </Badge>
+                                                                                ))}
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                )}
                                                             </div>
-
-                                                            {currentEvent.artists?.[0]?.artist && (
-                                                                <div className="space-y-1">
-                                                                    {currentEvent.artists[0].artist.tagsJoin?.length > 0 && (
-                                                                        <div className="flex flex-wrap gap-1">
-                                                                            {currentEvent.artists[0].artist.tagsJoin.map((tagJoin: any) => (
-                                                                                <Badge key={tagJoin.tag.id} variant="outline" className="text-[9px] px-1 py-0.5">
-                                                                                    {tagJoin.tag.name}
-                                                                                </Badge>
-                                                                            ))}
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            )}
                                                         </div>
-                                                    </div>
-                                                )}
+                                                    )}
 
-                                                {nextEvent && (
-                                                    <div className="space-y-2">
-                                                        <div className="text-sm font-medium">À venir</div>
-                                                        <div className="rounded-md border p-2 space-y-2">
-            <div>
-                                                                <div className="text-sm font-medium truncate">{nextEvent.name}</div>
-                                                                <div className="text-xs text-muted-foreground">
-                                                                    {formatEventDateTime(nextEvent.datestart).date} · {formatEventDateTime(nextEvent.datestart).time}
+                                                    {nextEvent && (
+                                                        <div className="space-y-2">
+                                                            <div className="text-sm font-medium">À venir</div>
+                                                            <div className="rounded-md border p-2 space-y-2">
+                                                                <div>
+                                                                    <div className="text-sm font-medium truncate">{nextEvent.name}</div>
+                                                                    <div className="text-xs text-muted-foreground">
+                                                                        {formatEventDateTime(nextEvent.datestart).date} · {formatEventDateTime(nextEvent.datestart).time}
+                                                                    </div>
                                                                 </div>
+
+                                                                {nextEvent.artists?.[0]?.artist && (
+                                                                    <div className="space-y-1">
+                                                                        {nextEvent.artists[0].artist.tagsJoin?.length > 0 && (
+                                                                            <div className="flex flex-wrap gap-1">
+                                                                                {nextEvent.artists[0].artist.tagsJoin.map((tagJoin: any) => (
+                                                                                    <Badge key={tagJoin.tag.id} variant="outline" className="text-[9px] px-1 py-0.5">
+                                                                                        {tagJoin.tag.name}
+                                                                                    </Badge>
+                                                                                ))}
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                )}
                                                             </div>
-
-                                                            {nextEvent.artists?.[0]?.artist && (
-                                                                <div className="space-y-1">
-                                                                    {nextEvent.artists[0].artist.tagsJoin?.length > 0 && (
-                                                                        <div className="flex flex-wrap gap-1">
-                                                                            {nextEvent.artists[0].artist.tagsJoin.map((tagJoin: any) => (
-                                                                                <Badge key={tagJoin.tag.id} variant="outline" className="text-[9px] px-1 py-0.5">
-                                                                                    {tagJoin.tag.name}
-                                                                                </Badge>
-                                                                            ))}
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            )}
                                                         </div>
-                                                    </div>
-                                                )}
+                                                    )}
 
-                                                {!currentEvent && !nextEvent && (
-                                                    <div className="text-xs text-muted-foreground">Aucun événement programmé</div>
-                                                )}
-                                            </>
-                                        );
-                                    })()}
-                                </div>
+                                                    {!currentEvent && !nextEvent && (
+                                                        <div className="text-xs text-muted-foreground">Aucun événement programmé</div>
+                                                    )}
+                                                </>
+                                            );
+                                        })()}
+                                    </div>
+                                ) : (
+                                    selectedArea.imgurl && (
+                                        <div>
+                                            <img
+                                                src={selectedArea.imgurl}
+                                                alt={selectedArea.name}
+                                                className="w-full h-32 object-cover rounded"
+                                            />
+                                        </div>
+                                    )
+                                )}
                             </div>
                         </Popup>
                     )}
@@ -361,7 +372,6 @@ const MapPage: React.FC = () => {
 
                 <div className="absolute top-4 right-4 z-10 flex gap-2">
                     <div className="relative">
-                        {/* Select personnalisé */}
                         <div
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -371,8 +381,7 @@ const MapPage: React.FC = () => {
                         >
                             <span>{selectedType === "all" ? "Tous les types" : selectedType.charAt(0).toUpperCase() + selectedType.slice(1)}</span>
                         </div>
-                        
-                        {/* Icône du type sélectionné */}
+
                         <div className="absolute left-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
                             {selectedType === "all" ? (
                                 <div className="w-6 h-6 rounded-full bg-gray-400 border border-white flex items-center justify-center">
@@ -384,21 +393,18 @@ const MapPage: React.FC = () => {
                                 </div>
                             )}
                         </div>
-                        
-                        {/* Flèche du select */}
+
                         <div className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
                             <svg className={`w-4 h-4 text-gray-400 transition-transform ${isSelectOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                             </svg>
                         </div>
 
-                        {/* Options dropdown */}
                         {isSelectOpen && (
-                            <div 
+                            <div
                                 onClick={(e) => e.stopPropagation()}
                                 className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-20 max-h-60 overflow-y-auto"
                             >
-                                {/* Option "Tous les types" */}
                                 <div
                                     onClick={() => {
                                         setSelectedType("all");
@@ -411,8 +417,7 @@ const MapPage: React.FC = () => {
                                     </div>
                                     <span className="text-sm">Tous les types</span>
                                 </div>
-                                
-                                {/* Options pour chaque type */}
+
                                 {availableTypes.map(type => (
                                     <div
                                         key={type}
@@ -431,7 +436,7 @@ const MapPage: React.FC = () => {
                             </div>
                         )}
                     </div>
-                    
+
                     <div className="relative">
                         <input
                             type="text"

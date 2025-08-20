@@ -1,4 +1,3 @@
-// lib/validation.ts
 import { ZodType } from "zod";
 import { ApiError } from "./errors";
 

@@ -8,7 +8,7 @@ export async function GET(_req: Request, { params }: Params) {
     try {
         const artist = await prisma.artist.findUnique({
             where: { id: params.id },
-            include: { tagsJoin: true, events: true },
+            include: { tagsJoin: { include: { tag: true } }, events: true },
         })
         if (!artist) return NextResponse.json({ error: "Artist not found" }, { status: 404 })
         return NextResponse.json(artist)

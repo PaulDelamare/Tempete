@@ -2,9 +2,26 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Navigation from "@/components/Navigation";
+
+interface Artist {
+  id: string;
+  name: string;
+  nickname?: string;
+  bio?: string;
+  imgurl?: string;
+  tagsJoin?: Array<{
+    tag: {
+      id: string;
+      name: string;
+    };
+  }>;
+}
 
 export default function Home() {
   const [scrollY, setScrollY] = useState(0);
+  const [artists, setArtists] = useState<Artist[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -15,8 +32,28 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    const fetchArtists = async () => {
+      try {
+        const response = await fetch("/api/artists");
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Artistes récupérés:", data);
+          setArtists(data);
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement des artistes:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArtists();
+  }, []);
+
   return (
     <div className="relative min-h-screen overflow-x-hidden">
+      <Navigation />
       {/* Section Parallax avec les montagnes */}
       <div className="relative h-screen overflow-hidden">
         {/* Logo en haut à gauche */}
@@ -31,10 +68,10 @@ export default function Home() {
             />
           </div>
           <div className="">
-            <h1 className="text-3xl font-bold">
-              TEMPETE DE
+            <h1 className="text-3xl font-bold font-metal">
+              TEMPÊTE
               <br />
-              METAL RUSSE
+              DE MÉTAL RUSSE
             </h1>
           </div>
         </div>
@@ -90,45 +127,67 @@ export default function Home() {
               />
               <div className="absolute inset-0 flex flex-col px-6 gap-1 justify-center">
                 <div className="flex flex-row justify-start">
-                  <h1 className="text-2xl font-bold">ARTISTS</h1>
+                  <h1 className="text-2xl font-bold font-metal">ARTISTES</h1>
                 </div>
                 <div className="flex flex-row justify-center gap-6">
-                  <div className="flex flex-col justify-center items-start w-24">
-                    <div className="w-24 h-16 mb-2 relative">
-                      <Image
-                        src="/images/others/artist1.jpg"
-                        alt="Artist 1"
-                        fill
-                        className="object-cover rounded-sm"
-                      />
-                    </div>
-                    <h1 className="font-bold text-md text-center">GROUP1</h1>
-                    <h1 className="text-xs text-left">Lorem ipsum</h1>
-                  </div>
-                  <div className="flex flex-col justify-center items-start w-24">
-                    <div className="w-24 h-16 mb-2 relative">
-                      <Image
-                        src="/images/others/artist2.jpg"
-                        alt="Artist 2"
-                        fill
-                        className="object-cover rounded-sm"
-                      />
-                    </div>
-                    <h1 className="font-bold text-md text-center">GROUP2</h1>
-                    <h1 className="text-xs text-left">Lorem ipsum</h1>
-                  </div>
-                  <div className="flex flex-col justify-center items-start w-24">
-                    <div className="w-24 h-16 mb-2 relative">
-                      <Image
-                        src="/images/others/artist3.jpg"
-                        alt="Artist 3"
-                        fill
-                        className="object-cover rounded-sm"
-                      />
-                    </div>
-                    <h1 className="font-bold text-md text-center">GROUP3</h1>
-                    <h1 className="text-xs text-left">Lorem ipsum</h1>
-                  </div>
+                  {(() => {
+                    // Prendre les 2 premiers artistes (sauf BTS)
+                    const firstTwo = artists
+                      .filter((artist) => artist.name !== "BTS")
+                      .slice(0, 2);
+
+                    // Prendre BTS
+                    const btsArtist = artists.find(
+                      (artist) => artist.name === "BTS"
+                    );
+
+                    // Combiner les 3 artistes
+                    const displayArtists = [...firstTwo];
+                    if (btsArtist) {
+                      displayArtists.push(btsArtist);
+                    }
+
+                    return displayArtists.map((artist, index) => (
+                      <div
+                        key={artist.id}
+                        className="flex flex-col justify-center items-start w-24"
+                      >
+                        <div className="w-24 h-16 mb-2 relative">
+                          {artist.imgurl && artist.imgurl !== "" ? (
+                            <Image
+                              src={artist.imgurl}
+                              alt={artist.name}
+                              fill
+                              className="object-cover rounded-sm"
+                              onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                                e.currentTarget.nextElementSibling?.classList.remove(
+                                  "hidden"
+                                );
+                              }}
+                            />
+                          ) : null}
+                          <span
+                            className={`text-2xl ${
+                              artist.imgurl && artist.imgurl !== ""
+                                ? "hidden"
+                                : ""
+                            }`}
+                          >
+                            🎸
+                          </span>
+                        </div>
+                        <h1 className="font-bold text-md text-center font-metal">
+                          {artist.name}
+                        </h1>
+                        {artist.nickname && (
+                          <h1 className="text-xs text-left text-blue-400">
+                            {artist.nickname}
+                          </h1>
+                        )}
+                      </div>
+                    ));
+                  })()}
                 </div>
               </div>
             </div>
@@ -137,18 +196,18 @@ export default function Home() {
           <div className="w-16 h-0.5 bg-white mb-8"></div>
 
           {/* Titre principal */}
-          <h1 className="text-5xl md:text-5xl font-bold mb-4 tracking-wider">
-            EXPERIENCE THE
+          <h1 className="text-5xl md:text-5xl font-bold mb-4 tracking-wider font-metal">
+            EXPÉRIMENTE
             <br />
-            FROSTBITE OF
+            LE GEL DU
             <br />
-            RUSSIAN METAL
+            MÉTAL RUSSE
           </h1>
 
           {/* Bouton CTA */}
           <div className="relative mb-4 w-fit group">
             <button
-              className="relative border-2 w-100 bg-white border-white text-black px-8 py-4 rounded-sm text-lg font-bold hover:bg-[#0D141F] hover:text-white transition-all duration-500 z-10"
+              className="relative border-2 w-100 bg-white border-white text-black px-8 py-4 rounded-sm text-lg font-bold hover:bg-[#0D141F] hover:text-white transition-all duration-500 z-10 font-metal"
               onMouseEnter={(e) => {
                 const button = e.currentTarget as HTMLElement;
                 button.style.setProperty("--glow-opacity", "1");
@@ -181,11 +240,11 @@ export default function Home() {
                   "--glow-opacity": "0",
                   "--bg-color": "white",
                   background: `linear-gradient(90deg, var(--bg-color) 0%, var(--bg-color) 100%) padding-box, 
-                                   radial-gradient(circle 100px at var(--mouse-x) var(--mouse-y), 
-                                   rgba(59, 130, 246, calc(1 * var(--glow-opacity))) 0%, 
-                                   rgba(56, 142, 245, calc(0.8 * var(--glow-opacity))) 30%, 
-                                   rgba(59, 130, 246, calc(0.4 * var(--glow-opacity))) 60%, 
-                                   transparent 80%) border-box`,
+                                  radial-gradient(circle 100px at var(--mouse-x) var(--mouse-y), 
+                                  rgba(59, 130, 246, calc(1 * var(--glow-opacity))) 0%, 
+                                  rgba(56, 142, 245, calc(0.8 * var(--glow-opacity))) 30%, 
+                                  rgba(59, 130, 246, calc(0.4 * var(--glow-opacity))) 60%, 
+                                  transparent 80%) border-box`,
                   border: "2px solid transparent",
                   boxShadow:
                     "0 0 20px rgba(59, 130, 246, calc(0.3 * var(--glow-opacity)))",
@@ -193,110 +252,153 @@ export default function Home() {
                 } as React.CSSProperties
               }
             >
-              BUY TICKETS
+              ACHETER DES BILLETS
             </button>
           </div>
 
           {/* Texte descriptif */}
           <p className="max-w-100 text-md opacity-90 leading-relaxed">
-            Lornizat datoreroot ernst pitics nude artiforooro ctle efectens ce
-            m00nsure an oceros παπο ανοspotre
+            Plonge dans l&apos;atmosphère du métal russe et ressens la puissance
+            de la vraie musique
           </p>
         </div>
       </div>
 
-      {/* Section Concerts */}
+      {/* Section Artistes */}
       <div className="bg-black text-white py-20 px-4">
         <div className="max-w-7xl mx-auto">
-          {/* Concert 221 */}
-          <div className="grid md:grid-cols-2 gap-12 mb-20">
-            {/* Colonne gauche */}
-            <div>
-              <h2 className="text-3xl font-bold mb-8 text-center md:text-left">
-                CONCERT 221
-              </h2>
-              <div className="grid grid-cols-3 gap-6">
-                {[
-                  {
-                    name: "ΒΙΙΟΤΕ 1 ΑΛΙΕ",
-                    role: "Оми роля",
-                    detail: "ска река",
-                  },
-                  {
-                    name: "GLANITE FABRE",
-                    role: "Соки онез",
-                    detail: "Sd Ane",
-                  },
-                  { name: "BATTLEAN", role: "Cove", detail: "Co pre" },
-                ].map((member, index) => (
-                  <div key={index} className="text-center">
-                    <div className="w-20 h-20 bg-gray-700 rounded-full mx-auto mb-3 flex items-center justify-center">
-                      <span className="text-2xl">👤</span>
-                    </div>
-                    <p className="font-semibold text-sm">{member.name}</p>
-                    <p className="text-xs opacity-75">{member.role}</p>
-                    <p className="text-xs opacity-75">{member.detail}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <h2 className="text-4xl font-bold mb-12 text-center font-metal">
+            LES ARTISTES
+          </h2>
 
-            {/* Colonne droite avec bordure lumineuse */}
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-sm blur-sm"></div>
-              <div className="relative bg-black/80 border border-blue-400/50 rounded-sm p-8">
-                <h2 className="text-3xl font-bold mb-8 text-center">
-                  CONCERT 221
-                </h2>
-                <div className="grid grid-cols-3 gap-6">
-                  {[
-                    {
-                      name: "GLANITE FABRE",
-                      role: "Соки онез",
-                      detail: "Sd Ane",
-                    },
-                    { name: "BATTLEAN", role: "Cove", detail: "Co pre" },
-                    { name: "PAISERLINE", role: "Metal", detail: "Core" },
-                  ].map((member, index) => (
-                    <div key={index} className="text-center">
-                      <div className="w-20 h-20 bg-gray-700 rounded-full mx-auto mb-3 flex items-center justify-center">
-                        <span className="text-2xl">👤</span>
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+              <p className="mt-4 text-lg">Chargement des artistes...</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 auto-rows-fr">
+              {artists.map((artist) => {
+                // Déterminer la taille de la carte basée sur le contenu
+                const hasImage = artist.imgurl && artist.imgurl !== "";
+                const bioLength = artist.bio ? artist.bio.length : 0;
+                const tagsCount = artist.tagsJoin ? artist.tagsJoin.length : 0;
+
+                // Logique pour déterminer la taille
+                let cardSize = "normal";
+                if (hasImage && bioLength > 100 && tagsCount > 2) {
+                  cardSize = "large"; // Grande carte pour les artistes avec beaucoup d'infos
+                } else if (hasImage && (bioLength > 50 || tagsCount > 1)) {
+                  cardSize = "medium"; // Carte moyenne pour les artistes avec quelques infos
+                } else if (hasImage || bioLength > 30) {
+                  cardSize = "small"; // Petite carte pour les artistes avec peu d'infos
+                }
+
+                return (
+                  <div
+                    key={artist.id}
+                    className={`relative group ${
+                      cardSize === "large"
+                        ? "md:col-span-2 md:row-span-2"
+                        : cardSize === "medium"
+                        ? "lg:col-span-2"
+                        : ""
+                    }`}
+                  >
+                    {/* Bordure lumineuse */}
+                    <div
+                      className={`absolute inset-0 rounded-lg blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
+                        cardSize === "large"
+                          ? "bg-gradient-to-br from-blue-500/30 to-purple-500/30"
+                          : cardSize === "medium"
+                          ? "bg-gradient-to-r from-cyan-500/20 to-blue-500/20"
+                          : "bg-gradient-to-r from-blue-500/20 to-cyan-500/20"
+                      }`}
+                    ></div>
+
+                    {/* Carte artiste */}
+                    <div className="relative bg-black/80 border border-blue-400/50 rounded-lg p-6 hover:border-blue-400 transition-colors duration-300 h-full flex flex-col">
+                      {/* Image de l'artiste */}
+                      <div
+                        className={`w-full bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg mb-4 flex items-center justify-center overflow-hidden ${
+                          cardSize === "large"
+                            ? "h-80"
+                            : cardSize === "medium"
+                            ? "h-72"
+                            : "h-64"
+                        }`}
+                      >
+                        {artist.imgurl && artist.imgurl !== "" ? (
+                          <Image
+                            src={artist.imgurl}
+                            alt={artist.name}
+                            width={200}
+                            height={200}
+                            className="w-full h-full object-cover rounded-lg"
+                            onError={(e) => {
+                              // En cas d'erreur de chargement, masquer l'image et afficher l'icône
+                              e.currentTarget.style.display = "none";
+                              e.currentTarget.nextElementSibling?.classList.remove(
+                                "hidden"
+                              );
+                            }}
+                          />
+                        ) : null}
+                        <span
+                          className={`text-4xl ${
+                            artist.imgurl && artist.imgurl !== ""
+                              ? "hidden"
+                              : ""
+                          }`}
+                        >
+                          🎸
+                        </span>
                       </div>
-                      <p className="font-semibold text-sm">{member.name}</p>
-                      <p className="text-xs opacity-75">{member.role}</p>
-                      <p className="text-xs opacity-75">{member.detail}</p>
-                      {index === 2 && (
-                        <button className="mt-3 bg-blue-600 text-white px-4 py-2 rounded-sm text-xs hover:bg-blue-700 transition-colors">
-                          BUY TICKETS
-                        </button>
+
+                      {/* Informations de l'artiste */}
+                      <div className="flex-1">
+                        <h3
+                          className={`font-bold mb-2 font-metal ${
+                            cardSize === "large"
+                              ? "text-2xl"
+                              : cardSize === "medium"
+                              ? "text-xl"
+                              : "text-lg"
+                          }`}
+                        >
+                          {artist.name}
+                        </h3>
+                        {artist.nickname && (
+                          <p className="text-sm text-blue-400 mb-2">
+                            {artist.nickname}
+                          </p>
+                        )}
+                        {artist.bio && (
+                          <p className="text-sm opacity-75 mb-4 line-clamp-3">
+                            {artist.bio}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Tags de l'artiste - alignés en bas */}
+                      {artist.tagsJoin && artist.tagsJoin.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-auto pt-4">
+                          {artist.tagsJoin.map((tagJoin) => (
+                            <span
+                              key={tagJoin.tag.id}
+                              className="px-2 py-1 bg-blue-600/20 border border-blue-400/30 rounded text-xs"
+                            >
+                              {tagJoin.tag.name}
+                            </span>
+                          ))}
+                        </div>
                       )}
                     </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Concert 22N */}
-          <div>
-            <h2 className="text-3xl font-bold mb-8 text-center">CONCERT 22N</h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              {[
-                { name: "RAJTLIRS", role: "Cove", detail: "Co pre" },
-                { name: "BATTLEAN", role: "Metal", detail: "Core" },
-                { name: "PAISERLINE", role: "Heavy", detail: "Rock" },
-              ].map((band, index) => (
-                <div key={index} className="text-center">
-                  <div className="w-24 h-24 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-lg mx-auto mb-4 flex items-center justify-center">
-                    <span className="text-3xl">🎸</span>
                   </div>
-                  <p className="font-bold text-lg">{band.name}</p>
-                  <p className="text-sm opacity-75">{band.role}</p>
-                  <p className="text-sm opacity-75">{band.detail}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
-          </div>
+          )}
         </div>
       </div>
 

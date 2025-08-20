@@ -47,3 +47,5 @@ package-lock.json
 docker-compose.*
 
 migrations*
+
+package-lock.json

@@ -2,6 +2,16 @@
 
 import React, { useState, useCallback, useEffect } from "react";
 import { Map, Marker, Popup } from "@vis.gl/react-maplibre";
+import { formatEventDateTime } from "@/lib/utils/date";
+
+interface Event {
+    id: string;
+    name: string;
+    description: string | null;
+    datestart: string;
+    dateend: string;
+    status: string;
+}
 
 interface Area {
     id: string;
@@ -14,6 +24,7 @@ interface Area {
     capacity: number | null;
     created_at: string;
     modified_at: string;
+    events?: Event[];
 }
 
 const MapPage: React.FC = () => {
@@ -68,6 +79,19 @@ const MapPage: React.FC = () => {
             setCurrentZoom(evt.viewState.zoom);
         }
     }, []);
+
+    const getUpcomingEvents = (area: Area): Event[] => {
+        if (!area.events) return [];
+        
+        const now = new Date();
+        return area.events
+            .filter(event => {
+                const eventStart = new Date(event.datestart);
+                return eventStart > now && event.status === 'published';
+            })
+            .sort((a, b) => new Date(a.datestart).getTime() - new Date(b.datestart).getTime())
+            .slice(0, 2); // Les 2 prochains événements
+    };
 
     if (loading) {
         return (
@@ -210,6 +234,53 @@ const MapPage: React.FC = () => {
                                             )}
                                         </div>
                                     </div>
+
+                                    {/* Prochains événements */}
+                                    {(() => {
+                                        const upcomingEvents = getUpcomingEvents(selectedArea);
+                                        if (upcomingEvents.length > 0) {
+    return (
+        <div>
+                                                    <span className="font-semibold text-sm text-gray-600">
+                                                        Prochains événements:
+                                                    </span>
+                                                    <div className="mt-2 space-y-2">
+                                                        {upcomingEvents.map((event) => {
+                                                            const dateTime = formatEventDateTime(event.datestart);
+                                                            return (
+                                                                <div 
+                                                                    key={event.id}
+                                                                    className="bg-blue-50 p-2 rounded border-l-4 border-blue-400"
+                                                                >
+                                                                    <div className="font-medium text-sm text-blue-900">
+                                                                        {event.name}
+                                                                    </div>
+                                                                    <div className="text-xs text-blue-700 mt-1">
+                                                                        📅 {dateTime.date} à {dateTime.time}
+                                                                    </div>
+                                                                    {event.description && (
+                                                                        <div className="text-xs text-blue-600 mt-1">
+                                                                            {event.description}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            );
+                                        }
+                                        return (
+            <div>
+                                                <span className="font-semibold text-sm text-gray-600">
+                                                    Prochains événements:
+                                                </span>
+                                                <div className="text-xs text-gray-500 mt-1">
+                                                    Aucun événement à venir
+                                                </div>
+                                            </div>
+                                        );
+                                    })()}
                                 </div>
                             </div>
                         </Popup>

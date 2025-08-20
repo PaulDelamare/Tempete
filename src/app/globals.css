@@ -130,4 +130,29 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  .maplibregl-popup-content {
+    padding: 15px 0 !important;
+  }
+
+  /* Style pour le bouton de fermeture de la popup */
+  .maplibregl-popup-close-button {
+    background: transparent !important;
+    border: none !important;
+    font-size: 18px !important;
+    font-weight: bold !important;
+    color: #6b7280 !important;
+    padding: 8px !important;
+    width: 30px !important;
+    height: 30px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: color 0.2s ease !important;
+  }
+
+  .maplibregl-popup-close-button:hover {
+    color: #374151 !important;
+  }
 }

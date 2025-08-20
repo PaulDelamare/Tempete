@@ -4,6 +4,9 @@ import React, { useState, useCallback, useEffect } from "react";
 import { Map, Marker, Popup } from "@vis.gl/react-maplibre";
 import { formatEventDateTime } from "@/lib/utils/date";
 
+import { Badge } from "@/components/ui/badge";
+import { log } from "handlebars/runtime";
+
 interface Event {
     id: string;
     name: string;
@@ -38,7 +41,6 @@ const MapPage: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [currentZoom, setCurrentZoom] = useState(15);
 
-    // Fetch areas from API
     useEffect(() => {
         const fetchAreas = async () => {
             try {
@@ -48,8 +50,7 @@ const MapPage: React.FC = () => {
                     throw new Error('Erreur lors du chargement des areas');
                 }
                 const data = await response.json();
-                
-                // Convertir les Decimal en number et filtrer les areas avec coordonnées
+
                 const areasWithCoords = data
                     .filter((area: any) => area.latitude && area.longitude)
                     .map((area: any) => ({
@@ -57,8 +58,9 @@ const MapPage: React.FC = () => {
                         latitude: parseFloat(area.latitude.toString()),
                         longitude: parseFloat(area.longitude.toString()),
                     }));
-                
+
                 setAreas(areasWithCoords);
+                console.log("Areas loaded:", areasWithCoords);
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Erreur inconnue');
                 console.error('Erreur lors du chargement des areas:', err);
@@ -82,7 +84,7 @@ const MapPage: React.FC = () => {
 
     const getUpcomingEvents = (area: Area): Event[] => {
         if (!area.events) return [];
-        
+
         const now = new Date();
         return area.events
             .filter(event => {
@@ -90,7 +92,7 @@ const MapPage: React.FC = () => {
                 return eventStart > now && event.status === 'published';
             })
             .sort((a, b) => new Date(a.datestart).getTime() - new Date(b.datestart).getTime())
-            .slice(0, 2); // Les 2 prochains événements
+            .slice(0, 2);
     };
 
     if (loading) {
@@ -107,8 +109,8 @@ const MapPage: React.FC = () => {
             <div className="w-full h-screen flex flex-col items-center justify-center">
                 <div className="text-xl text-red-600">Erreur de chargement</div>
                 <div className="mt-2 text-gray-600">{error}</div>
-                <button 
-                    onClick={() => window.location.reload()} 
+                <button
+                    onClick={() => window.location.reload()}
                     className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
                     Réessayer
@@ -138,7 +140,6 @@ const MapPage: React.FC = () => {
                         }
                         setMarkerClicked(false);
 
-                        // debug coords
                         console.log("Coordonnées cliquées:", { longitude: event.lngLat.lng, latitude: event.lngLat.lat });
                     }}
                 >
@@ -191,94 +192,36 @@ const MapPage: React.FC = () => {
                             }}
                             anchor="bottom"
                             offset={[0, -10]}
+                            maxWidth="260px"
                         >
-                            <div className="p-4 min-w-[250px]">
-                                <h3 className="text-lg font-bold text-gray-800 mb-2">
-                                    {selectedArea.name}
-                                </h3>
+                            <div className="w-[260px] max-w-[260px] px-4 py-3 space-y-3">
+                                <div className="text-base font-semibold leading-tight truncate">{selectedArea.name}</div>
+                                <Badge variant="info" className="w-fit px-2 py-0.5 text-[10px]">{selectedArea.type}</Badge>
 
-                                <div className="space-y-3">
-                                    <div>
-                                        <span className="font-semibold text-sm text-gray-600">
-                                            Description:
-                                        </span>
-                                        <p className="text-gray-800 text-sm mt-1">
-                                            {selectedArea.description || 'Aucune description'}
-                                        </p>
-                                    </div>
+                                {selectedArea.description && (
+                                    <p className="text-sm break-words">{selectedArea.description}</p>
+                                )}
 
-                                    <div>
-                                        <span className="font-semibold text-sm text-gray-600">
-                                            Type:
-                                        </span>
-                                        <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                                            {selectedArea.type}
-                                        </span>
-                                    </div>
+                                {selectedArea.capacity && (
+                                    <div className="text-xs text-muted-foreground">Capacité: {selectedArea.capacity} personnes</div>
+                                )}
 
-                                    <div>
-                                        <span className="font-semibold text-sm text-gray-600">
-                                            Coordonnées:
-                                        </span>
-                                        <div className="text-xs text-gray-700 mt-1">
-                                            <div>
-                                                Longitude: {selectedArea.longitude?.toFixed(6) || 'N/A'}
-                                            </div>
-                                            <div>
-                                                Latitude: {selectedArea.latitude?.toFixed(6) || 'N/A'}
-                                            </div>
-                                            {selectedArea.capacity && (
-                                                <div>
-                                                    Capacité: {selectedArea.capacity} personnes
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Prochains événements */}
+                                <div className="space-y-2">
+                                    <div className="text-sm font-medium">Prochains événements</div>
                                     {(() => {
-                                        const upcomingEvents = getUpcomingEvents(selectedArea);
-                                        if (upcomingEvents.length > 0) {
-    return (
-        <div>
-                                                    <span className="font-semibold text-sm text-gray-600">
-                                                        Prochains événements:
-                                                    </span>
-                                                    <div className="mt-2 space-y-2">
-                                                        {upcomingEvents.map((event) => {
-                                                            const dateTime = formatEventDateTime(event.datestart);
-                                                            return (
-                                                                <div 
-                                                                    key={event.id}
-                                                                    className="bg-blue-50 p-2 rounded border-l-4 border-blue-400"
-                                                                >
-                                                                    <div className="font-medium text-sm text-blue-900">
-                                                                        {event.name}
-                                                                    </div>
-                                                                    <div className="text-xs text-blue-700 mt-1">
-                                                                        📅 {dateTime.date} à {dateTime.time}
-                                                                    </div>
-                                                                    {event.description && (
-                                                                        <div className="text-xs text-blue-600 mt-1">
-                                                                            {event.description}
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            );
-                                                        })}
+                                        const ups = getUpcomingEvents(selectedArea);
+                                        return ups.length > 0 ? (
+                                            ups.map(ev => {
+                                                const dt = formatEventDateTime(ev.datestart);
+                                                return (
+                                                    <div key={ev.id} className="rounded-md border p-2">
+                                                        <div className="text-sm truncate">{ev.name}</div>
+                                                        <div className="text-xs text-muted-foreground">{dt.date} · {dt.time}</div>
                                                     </div>
-                                                </div>
-                                            );
-                                        }
-                                        return (
-            <div>
-                                                <span className="font-semibold text-sm text-gray-600">
-                                                    Prochains événements:
-                                                </span>
-                                                <div className="text-xs text-gray-500 mt-1">
-                                                    Aucun événement à venir
-                                                </div>
-                                            </div>
+                                                );
+                                            })
+                                        ) : (
+                                            <div className="text-xs text-muted-foreground">Aucun événement à venir</div>
                                         );
                                     })()}
                                 </div>

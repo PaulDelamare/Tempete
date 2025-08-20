@@ -88,8 +88,8 @@ model Area {
   imgurl      String?
   description String?
   type        AreaType
-  latitude    Decimal? @db.Decimal(9, 6)
-  longitude   Decimal? @db.Decimal(9, 6)
+  latitude    Decimal? @db.Decimal(23, 20)
+  longitude   Decimal? @db.Decimal(23, 20)
   capacity    Int?     @db.Integer
   created_at  DateTime @default(now())
   modified_at DateTime @updatedAt

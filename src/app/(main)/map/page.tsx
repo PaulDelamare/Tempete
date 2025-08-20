@@ -3,6 +3,15 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { Map, Marker, Popup } from "@vis.gl/react-maplibre";
 import { formatEventDateTime } from "@/lib/utils/date";
+import { 
+    Music, 
+    UtensilsCrossed, 
+    ShoppingBag, 
+    Armchair, 
+    Settings, 
+    Info, 
+    Cross 
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 
@@ -31,6 +40,7 @@ const MapPage: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [currentZoom, setCurrentZoom] = useState(15);
     const [selectedType, setSelectedType] = useState<string>("all");
+    const [isSelectOpen, setIsSelectOpen] = useState(false);
 
     useEffect(() => {
         const fetchAreas = async () => {
@@ -61,6 +71,23 @@ const MapPage: React.FC = () => {
         fetchAreas();
     }, []);
 
+    // Fermer le dropdown quand on clique ailleurs
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (isSelectOpen) {
+                setIsSelectOpen(false);
+            }
+        };
+
+        if (isSelectOpen) {
+            document.addEventListener('click', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('click', handleClickOutside);
+        };
+    }, [isSelectOpen]);
+
     const filteredAreas = areas.filter((area) => {
         const matchesSearch = area.name.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesType = selectedType === "all" || area.type === selectedType;
@@ -68,6 +95,50 @@ const MapPage: React.FC = () => {
     });
 
     const availableTypes = Array.from(new Set(areas.map(area => area.type)));
+
+    const getAreaIcon = (type: string) => {
+        const iconProps = { size: 16, className: "text-white" };
+        
+        switch (type) {
+            case 'stage':
+                return <Music {...iconProps} />;
+            case 'food':
+                return <UtensilsCrossed {...iconProps} />;
+            case 'merch':
+                return <ShoppingBag {...iconProps} />;
+            case 'chill':
+                return <Armchair {...iconProps} />;
+            case 'service':
+                return <Settings {...iconProps} />;
+            case 'info':
+                return <Info {...iconProps} />;
+            case 'medical':
+                return <Cross {...iconProps} />;
+            default:
+                return <Info {...iconProps} />;
+        }
+    };
+
+    const getAreaColor = (type: string) => {
+        switch (type) {
+            case 'stage':
+                return 'bg-purple-500 hover:bg-purple-600';
+            case 'food':
+                return 'bg-orange-500 hover:bg-orange-600';
+            case 'merch':
+                return 'bg-green-500 hover:bg-green-600';
+            case 'chill':
+                return 'bg-blue-500 hover:bg-blue-600';
+            case 'service':
+                return 'bg-gray-500 hover:bg-gray-600';
+            case 'info':
+                return 'bg-cyan-500 hover:bg-cyan-600';
+            case 'medical':
+                return 'bg-red-500 hover:bg-red-600';
+            default:
+                return 'bg-gray-500 hover:bg-gray-600';
+        }
+    };
 
     const handleViewStateChange = useCallback((evt: any) => {
         if (evt?.viewState?.zoom !== undefined) {
@@ -130,7 +201,7 @@ const MapPage: React.FC = () => {
                     initialViewState={{
                         longitude: 142.78130880856264,
                         latitude: 63.467719565611816,
-                        zoom: 15,
+                        zoom: 17,
                     }}
                     mapStyle="https://tiles.openfreemap.org/styles/liberty"
                     onMove={handleViewStateChange}
@@ -171,7 +242,9 @@ const MapPage: React.FC = () => {
                                     pointerEvents: 'auto',
                                 }}
                             >
-                                <div className="bg-red-500 w-8 h-8 rounded-full border-2 border-white cursor-pointer hover:bg-red-600" />
+                                <div className={`w-8 h-8 rounded-full border-2 border-white cursor-pointer flex items-center justify-center ${getAreaColor(area.type)}`}>
+                                    {getAreaIcon(area.type)}
+                                </div>
                                 {currentZoom >= 14 && (
                                     <div className="mt-1 px-2 py-1 bg-white bg-opacity-90 rounded shadow-sm text-xs font-medium text-gray-800 whitespace-nowrap border">
                                         {area.name}
@@ -209,7 +282,7 @@ const MapPage: React.FC = () => {
                                     {(() => {
                                         const { currentEvent, nextEvent } = getCurrentAndNextEvent(selectedArea);
 
-                                        return (
+    return (
                                             <>
                                                 {currentEvent && (
                                                     <div className="space-y-2">
@@ -222,7 +295,7 @@ const MapPage: React.FC = () => {
                                                                     className="w-full h-20 object-cover rounded"
                                                                 />
                                                             )}
-                                                            <div>
+        <div>
                                                                 <div className="text-sm font-medium truncate">{currentEvent.name}</div>
                                                                 <div className="text-xs text-muted-foreground">
                                                                     {formatEventDateTime(currentEvent.datestart).date} · {formatEventDateTime(currentEvent.datestart).time}
@@ -250,7 +323,7 @@ const MapPage: React.FC = () => {
                                                     <div className="space-y-2">
                                                         <div className="text-sm font-medium">À venir</div>
                                                         <div className="rounded-md border p-2 space-y-2">
-                                                            <div>
+            <div>
                                                                 <div className="text-sm font-medium truncate">{nextEvent.name}</div>
                                                                 <div className="text-xs text-muted-foreground">
                                                                     {formatEventDateTime(nextEvent.datestart).date} · {formatEventDateTime(nextEvent.datestart).time}
@@ -287,18 +360,77 @@ const MapPage: React.FC = () => {
                 </Map>
 
                 <div className="absolute top-4 right-4 z-10 flex gap-2">
-                    <select
-                        value={selectedType}
-                        onChange={(e) => setSelectedType(e.target.value)}
-                        className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-lg text-sm"
-                    >
-                        <option value="all">Tous les types</option>
-                        {availableTypes.map(type => (
-                            <option key={type} value={type}>
-                                {type.charAt(0).toUpperCase() + type.slice(1)}
-                            </option>
-                        ))}
-                    </select>
+                    <div className="relative">
+                        {/* Select personnalisé */}
+                        <div
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsSelectOpen(!isSelectOpen);
+                            }}
+                            className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-lg text-sm cursor-pointer min-w-[140px]"
+                        >
+                            <span>{selectedType === "all" ? "Tous les types" : selectedType.charAt(0).toUpperCase() + selectedType.slice(1)}</span>
+                        </div>
+                        
+                        {/* Icône du type sélectionné */}
+                        <div className="absolute left-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                            {selectedType === "all" ? (
+                                <div className="w-6 h-6 rounded-full bg-gray-400 border border-white flex items-center justify-center">
+                                    <Info size={12} className="text-white" />
+                                </div>
+                            ) : (
+                                <div className={`w-6 h-6 rounded-full border border-white flex items-center justify-center ${getAreaColor(selectedType).replace('hover:', '')}`}>
+                                    {React.cloneElement(getAreaIcon(selectedType) as React.ReactElement, { size: 12 })}
+                                </div>
+                            )}
+                        </div>
+                        
+                        {/* Flèche du select */}
+                        <div className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                            <svg className={`w-4 h-4 text-gray-400 transition-transform ${isSelectOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+
+                        {/* Options dropdown */}
+                        {isSelectOpen && (
+                            <div 
+                                onClick={(e) => e.stopPropagation()}
+                                className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-20 max-h-60 overflow-y-auto"
+                            >
+                                {/* Option "Tous les types" */}
+                                <div
+                                    onClick={() => {
+                                        setSelectedType("all");
+                                        setIsSelectOpen(false);
+                                    }}
+                                    className={`flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-50 ${selectedType === "all" ? "bg-blue-50" : ""}`}
+                                >
+                                    <div className="w-6 h-6 rounded-full bg-gray-400 border border-white flex items-center justify-center flex-shrink-0">
+                                        <Info size={12} className="text-white" />
+                                    </div>
+                                    <span className="text-sm">Tous les types</span>
+                                </div>
+                                
+                                {/* Options pour chaque type */}
+                                {availableTypes.map(type => (
+                                    <div
+                                        key={type}
+                                        onClick={() => {
+                                            setSelectedType(type);
+                                            setIsSelectOpen(false);
+                                        }}
+                                        className={`flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-50 ${selectedType === type ? "bg-blue-50" : ""}`}
+                                    >
+                                        <div className={`w-6 h-6 rounded-full border border-white flex items-center justify-center flex-shrink-0 ${getAreaColor(type).replace('hover:', '')}`}>
+                                            {React.cloneElement(getAreaIcon(type) as React.ReactElement, { size: 12 })}
+                                        </div>
+                                        <span className="text-sm">{type.charAt(0).toUpperCase() + type.slice(1)}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                     
                     <div className="relative">
                         <input

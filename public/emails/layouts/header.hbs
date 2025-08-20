@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width"/>
+<title></title>
+<style>
+  html,body{margin:0;padding:0}
+  .email-container{max-width:700px;margin:0 auto;}
+  @media screen and (max-width:600px){
+    .email-container{padding:0 12px}
+  }
+</style>
+</head>
+<body style="background:#0f1113; margin:0; padding:0;">
+<center style="width:100%; background:#0f1113;">
+  <div class="email-container" style="max-width:700px;margin:0 auto;">
+    <!-- logo + hero -->
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:linear-gradient(250deg,#0b0c0e 0%, #141416 40%); border-radius:12px 12px 0 0; overflow:hidden;">
+      <tr>
+        <td style="padding:18px; text-align:left;">
+          <!-- logo (SVG) -->
+          <div style="display:flex;align-items:center;gap:12px;">
+            <svg width="48" viewBox="0 0 50 63" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <defs>
+                <linearGradient id="g1" x1="0" x2="1">
+                  <stop offset="0" stop-color="#0582CA"/>
+                  <stop offset="1" stop-color="#A3009C"/>
+                </linearGradient>
+              </defs>
+              <path d="M28.5 1.34C28.99 .52 29.8 .03 30.68 .03h.004c.92 0 1.75.52 2.23 1.39  . . ." fill="url(#g1)"/>
+            </svg>
+            <div style="font-family:sans-serif;color:#fff;font-weight:700;font-size:16px;">TEMPÊTE DE METAL RUSSE</div>
+          </div>
+        </td>
+      </tr>
+
+      <tr>
+        <td style="padding:0; text-align:center;">
+          <!-- hero image (use absolute URL via siteUrl variable) -->
+          <img src="{{siteUrl}}/images/email-hero.jpg" alt="Frostbite hero" width="700" style="width:100%; max-width:700px; height:auto; display:block; object-fit:cover;"/>
+        </td>
+      </tr>
+
+      <tr>
+        <td style="padding:18px 22px 24px 22px; color:#ddd;">
+          <!-- container open: the template will be injected below this cell -->

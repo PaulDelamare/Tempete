@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -17,6 +17,7 @@ datasource db {
 // -----------------------------
 // Enums
 // -----------------------------
+
 enum EventStatus {
   draft
   published
@@ -124,14 +125,19 @@ model Sponsor {
 }
 
 model User {
-  id          String   @id @default(cuid())
-  email       String   @unique @db.Citext
-  name        String?
-  firstname   String?
-  roles       String[] @default([])
-  password    String
-  created_at  DateTime @default(now())
-  modified_at DateTime @updatedAt
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  firstname     String?
+  roles         String[]  @default([])
+  created_at    DateTime  @default(now())
+  modified_at   DateTime  @updatedAt
+  emailVerified Boolean
+  image         String?
+  createdAt     DateTime
+  updatedAt     DateTime
+  sessions      Session[]
+  accounts      Account[]
 }
 
 model Tag {
@@ -186,7 +192,7 @@ model EventArtist {
 
 model MailAlert {
   id         String   @id @default(cuid())
-  email      String   @db.Citext
+  email      String
   eventId    String
   created_at DateTime @default(now())
 
@@ -194,4 +200,49 @@ model MailAlert {
 
   @@unique([eventId, email])
   @@index([eventId, email])
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
 }

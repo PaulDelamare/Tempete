@@ -31,7 +31,6 @@ import { redirect } from "next/navigation";
 export default async function Layout({
     children,
 }: Readonly<{ children: ReactNode }>) {
-
     const session = await auth.api.getSession({
         headers: await headers(),
     });

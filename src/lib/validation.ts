@@ -1,8 +1,8 @@
 // lib/validation.ts
-import { ZodSchema } from "zod";
+import { ZodType } from "zod";
 import { ApiError } from "./errors";
 
-export function validateBody<T>(schema: ZodSchema<T>, body: unknown): T {
+export function validateBody<T>(schema: ZodType<T>, body: unknown): T {
      const parsed = schema.safeParse(body);
 
      if (!parsed.success) {

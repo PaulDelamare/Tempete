@@ -57,13 +57,10 @@ const MapPage = () => {
 
 
 
-
-    // Filtrer les areas selon le terme de recherche
-    const filteredAreas = areas.filter(area => 
+    const filteredAreas = areas.filter(area =>
         area.name.toLowerCase().includes(searchTerm.toLowerCase())
     )
 
-    // Callback pour surveiller les changements de zoom
     const handleViewStateChange = useCallback((evt: any) => {
         setCurrentZoom(evt.viewState.zoom)
     }, [])
@@ -158,7 +155,6 @@ const MapPage = () => {
                     )}
                 </Map>
 
-                {/* Champ de recherche en overlay */}
                 <div className="absolute top-4 right-4 z-10">
                     <div className="relative">
                         <input

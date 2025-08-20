@@ -147,7 +147,7 @@ export default function Home() {
                       displayArtists.push(btsArtist);
                     }
 
-                    return displayArtists.map((artist, index) => (
+                    return displayArtists.map((artist) => (
                       <div
                         key={artist.id}
                         className="flex flex-col justify-center items-start w-24"

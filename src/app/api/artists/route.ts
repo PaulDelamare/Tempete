@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { handleError } from "@/lib/utils/api-error";
 
 export async function GET() {
   try {
@@ -10,18 +11,32 @@ export async function GET() {
             tag: true,
           },
         },
+        events: true,
       },
       orderBy: {
         name: "asc",
       },
     });
-
     return NextResponse.json(artists);
   } catch (error) {
-    console.error("Erreur lors de la récupération des artistes:", error);
-    return NextResponse.json(
-      { error: "Erreur lors de la récupération des artistes" },
-      { status: 500 }
-    );
+    return handleError(error, "GET /api/artists");
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const artist = await prisma.artist.create({
+      data: {
+        name: body.name,
+        nickname: body.nickname,
+        links: body.links,
+        bio: body.bio,
+        imgurl: body.imgurl,
+      },
+    });
+    return NextResponse.json(artist);
+  } catch (error) {
+    return handleError(error, "POST /api/artists");
   }
 }

@@ -30,6 +30,7 @@ const MapPage: React.FC = () => {
     const [markerClicked, setMarkerClicked] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [currentZoom, setCurrentZoom] = useState(15);
+    const [selectedType, setSelectedType] = useState<string>("all");
 
     useEffect(() => {
         const fetchAreas = async () => {
@@ -60,9 +61,13 @@ const MapPage: React.FC = () => {
         fetchAreas();
     }, []);
 
-    const filteredAreas = areas.filter((area) =>
-        area.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredAreas = areas.filter((area) => {
+        const matchesSearch = area.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesType = selectedType === "all" || area.type === selectedType;
+        return matchesSearch && matchesType;
+    });
+
+    const availableTypes = Array.from(new Set(areas.map(area => area.type)));
 
     const handleViewStateChange = useCallback((evt: any) => {
         if (evt?.viewState?.zoom !== undefined) {
@@ -281,7 +286,20 @@ const MapPage: React.FC = () => {
                     )}
                 </Map>
 
-                <div className="absolute top-4 right-4 z-10">
+                <div className="absolute top-4 right-4 z-10 flex gap-2">
+                    <select
+                        value={selectedType}
+                        onChange={(e) => setSelectedType(e.target.value)}
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-lg text-sm"
+                    >
+                        <option value="all">Tous les types</option>
+                        {availableTypes.map(type => (
+                            <option key={type} value={type}>
+                                {type.charAt(0).toUpperCase() + type.slice(1)}
+                            </option>
+                        ))}
+                    </select>
+                    
                     <div className="relative">
                         <input
                             type="text"

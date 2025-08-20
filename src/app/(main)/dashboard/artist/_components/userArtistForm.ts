@@ -39,10 +39,15 @@ export function useArtistForm(initialData?: Partial<ArtistFormValues>) {
                     imgurl = await convertImageToBase64(values.image);
                }
 
-               const response = await fetch(initialData?.id ? `/api/artist/${initialData.id}` : "/api/artist", {
+               const response = await fetch("/api/artist", {
                     method: initialData?.id ? "PUT" : "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ ...values, imgurl, links: values.links }),
+                    body: JSON.stringify({
+                         ...values,
+                         id: initialData?.id,
+                         imgurl,
+                         links: values.links,
+                    }),
                });
 
                setLoading(false);

@@ -28,7 +28,19 @@ export default function ArtistForm({ artist }: { artist: Artist & { tagsJoin: { 
 
     const { form, links, setLinks, selectedTags, setSelectedTags, onValid, onInvalid, success, loading, error } = useArtistForm({
         ...artist,
-        links: artist?.links ? Object.entries(artist.links).map(([name, url]) => ({ name, url })) : [{ name: "", url: "" }],
+        links: Array.isArray(artist?.links)
+            ? artist.links.map((link) => {
+                // link est de type JsonValue, donc on doit vérifier
+                if (typeof link === "object" && link !== null) {
+                    const obj = link as Record<string, unknown>;
+                    return {
+                        name: typeof obj.name === "string" ? obj.name : "",
+                        url: typeof obj.url === "string" ? obj.url : "",
+                    };
+                }
+                return { name: "", url: "" };
+            })
+            : [],
         tagIds: artist?.tagsJoin?.map((t) => t.tag.id) ?? [],
     });
 
@@ -36,7 +48,7 @@ export default function ArtistForm({ artist }: { artist: Artist & { tagsJoin: { 
         <CardWrapper
             cardTitle={artist ? "Modifier l'artiste" : "Créer un artiste"}
             cardDescription={artist ? "Modifiez les informations de l'artiste." : "Créez un nouvel artiste en remplissant le formulaire."}
-            maxWidth="max-w-6xl"
+            maxWidth="max-w-7xl"
             className="px-4 mx-auto"
         >
             <FormProvider {...form}>
@@ -48,9 +60,27 @@ export default function ArtistForm({ artist }: { artist: Artist & { tagsJoin: { 
                             <FormItem>
                                 <FormLabel>{field.label}</FormLabel>
                                 <FormControl>
-                                    {field.type === "textarea"
-                                        ? <textarea {...hookField} rows={4} className="w-full border rounded p-2" disabled={loading} />
-                                        : <Input {...hookField} type={field.type} placeholder={field.placeholder} disabled={loading} />}
+                                    {field.type === "textarea" ? (
+                                        <div>
+                                            <textarea
+                                                {...hookField}
+                                                rows={4}
+                                                className="w-full max-h-96 h-24 min-h-12 border rounded p-2"
+                                                placeholder={field.placeholder}
+                                                disabled={loading}
+                                            />
+                                            <div className="text-xs text-muted-foreground mt-1">
+                                                Petite biographie de l&#39;artiste (quelques lignes suffisent)
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <Input
+                                            {...hookField}
+                                            type={field.type}
+                                            placeholder={field.placeholder}
+                                            disabled={loading}
+                                        />
+                                    )}
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>

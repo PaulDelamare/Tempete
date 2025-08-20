@@ -31,8 +31,8 @@
  */
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { ArtistSchema } from "@/helpers/zod/artist/create-artist-schema";
-import { createArtist } from "@/services/artist.service";
+import { ArtistSchema, MergedArtistPutSchema } from "@/helpers/zod/artist/create-artist-schema";
+import { createArtist, updateArtist } from "@/services/artist.service";
 import { validateBody } from "@/lib/validation";
 import { handleApiError } from "@/lib/errors";
 
@@ -115,9 +115,9 @@ export async function POST(request: Request) {
     try {
         const body = await request.json();
 
-        const data = validateBody(ArtistSchema, body);
+        const validatedData = validateBody(ArtistSchema, body);
 
-        const artist = await createArtist(data);
+        const artist = await createArtist(validatedData);
 
         return NextResponse.json(artist, { status: 201 });
     } catch (error) {
@@ -126,23 +126,89 @@ export async function POST(request: Request) {
     }
 }
 
+/**
+ * @openapi
+ * /api/artist:
+ *   put:
+ *     summary: Met à jour un artiste existant
+ *     tags:
+ *       - Artist
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: "ID de l'artiste à mettre à jour"
+ *                 example: "cmekc9882000j4xlwl8vugy5v"
+ *               name:
+ *                 type: string
+ *                 description: Nom de l'artiste
+ *                 example: "Metallica"
+ *               nickname:
+ *                 type: string
+ *                 description: Surnom de l'artiste
+ *                 example: "Hetfield"
+ *               bio:
+ *                 type: string
+ *                 description: Biographie
+ *                 example: "Groupe de heavy metal américain"
+ *               links:
+ *                 type: array
+ *                 description: Liste de liens de l'artiste
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     name:
+ *                       type: string
+ *                       description: "Nom du lien (ex: Instagram)"
+ *                       example: "instagram"
+ *                     url:
+ *                       type: string
+ *                       format: uri
+ *                       description: "URL du lien"
+ *                       example: "https://instagram.com/metallica"
+ *               tagIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: "Liste des IDs de tags associés"
+ *                 example: ["cld9xyzabc123", "cld9xyzabc456"]
+ *               imgurl:
+ *                 type: string
+ *                 description: "Image en Base64 (PNG/JPG/WEBP)"
+ *                 example: "data:image/png;base64,iVBORw0KGgoAAAANS..."
+ *     responses:
+ *       200:
+ *         description: Artiste mis à jour avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Artist'
+ *       400:
+ *         description: Erreur de validation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Validation failed"
+ */
 export async function PUT(request: Request) {
-    const body = await request.json();
-    const { id, ...data } = body;
-    const parse = ArtistSchema.safeParse(data);
-    if (!parse.success || !id) {
-        return NextResponse.json({ error: parse.error || "ID manquant" }, { status: 400 });
-    }
-    const artist = await prisma.artist.update({ where: { id }, data: parse.data });
-    return NextResponse.json(artist);
-}
+    try {
+        const body = await request.json();
 
-export async function DELETE(request: Request) {
-    const body = await request.json();
-    const { id } = body;
-    if (!id) {
-        return NextResponse.json({ error: "ID manquant" }, { status: 400 });
+        const validatedData = validateBody(MergedArtistPutSchema, body);
+
+        const artist = await updateArtist(validatedData);
+
+        return NextResponse.json(artist);
+    } catch (error) {
+        return handleApiError(error);
     }
-    await prisma.artist.delete({ where: { id } });
-    return NextResponse.json({ success: true });
 }

@@ -32,7 +32,7 @@ export const CreateArtistSchema = z.object({
         }),
 
     tagIds: z
-        .array(z.string().uuid({ message: "TagId doit être un UUID valide" }))
+        .array(z.cuid({ message: "Id doit être un CUID valide" }))
         .optional()
         .nullable()
         .superRefine((arr, ctx) => {
@@ -70,14 +70,14 @@ export const CreateArtistSchema = z.object({
 
 export const ArtistSchema = z.object({
     name: z.string().min(1),
-    nickname: z.string().optional(),
+    nickname: z.string().nullable(),
     links: z.array(
         z.object({
             name: z.string().min(1, "Nom du lien requis"),
             url: z.url("URL invalide"),
         })
     ).optional(),
-    bio: z.string().optional(),
+    bio: z.string().nullable(),
     tagIds: z.array(z.string().cuid()).optional(),
     imgurl: z
         .string()
@@ -87,7 +87,14 @@ export const ArtistSchema = z.object({
         .nullable(),
 });
 
+export const ArtistIdSchema = z.object({
+    id: z.cuid({ message: "Id doit être un CUID valide" }),
+});
+
+export const MergedArtistPutSchema = ArtistIdSchema.extend(ArtistSchema.shape);
+
 export type CreateArtistApiSchemaType = z.infer<typeof ArtistSchema>;
 
+export type MergedArtistPutSchemaType = z.infer<typeof MergedArtistPutSchema>;
 
 export type CreateArtistSchemaType = z.infer<typeof CreateArtistSchema>;

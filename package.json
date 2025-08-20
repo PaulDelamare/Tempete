@@ -10,7 +10,8 @@
         "generate": "npx prisma generate",
         "migrate": "npx prisma migrate dev",
         "studio": "npx prisma studio",
-        "better:generate": "npx @better-auth/cli generate --config src/libs/auth.ts"
+        "better:generate": "npx @better-auth/cli generate --config src/libs/auth.ts",
+        "reset": "npx prisma migrate reset"
     },
     "dependencies": {
         "@dnd-kit/core": "^6.3.1",

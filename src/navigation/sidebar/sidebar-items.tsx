@@ -15,8 +15,7 @@ import {
     Banknote,
     Gauge,
     GraduationCap,
-    type LucideIcon,
-    User,
+    type LucideIcon, LandPlot, User
 } from "lucide-react";
 
 export interface NavSubItem {
@@ -60,9 +59,9 @@ export const sidebarItems: NavGroup[] = [
                 icon: User,
             },
             {
-                title: "Finance",
-                url: "/dashboard/finance",
-                icon: Banknote,
+                title: "Zones",
+                url: "/dashboard/area",
+                icon: LandPlot,
             },
             {
                 title: "Analytics",

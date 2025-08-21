@@ -62,8 +62,8 @@ const getCurrentAndNextEvent = (area: Area) => {
 export const AreaPopup: React.FC<AreaPopupProps> = ({ area, onClose }) => {
     return (
         <Popup
-            longitude={area.longitude}
-            latitude={area.latitude}
+            longitude={area.longitude!}
+            latitude={area.latitude!}
             closeButton={true}
             closeOnClick={false}
             onClose={onClose}
@@ -71,25 +71,23 @@ export const AreaPopup: React.FC<AreaPopupProps> = ({ area, onClose }) => {
             offset={[0, -10]}
             maxWidth="260px"
         >
-            <div className="w-[260px] max-w-[260px] px-4 py-3 space-y-3">
+            <div className="w-[260px] max-w-[260px] px-4 py-3 space-y-3 bg-black text-white">
                 <div>
-                    <div className="text-base font-semibold leading-tight truncate">{area.name}</div>
-                    <Badge variant="secondary" className="w-fit px-2 py-0.5 text-[10px] mt-1">
+                    <div className="text-base font-semibold leading-tight truncate font-metal text-blue-400 hover:text-blue-300 cursor-pointer transition-colors">{area.name}</div>
+                    <Badge variant="secondary" className="w-fit px-2 py-0.5 text-[10px] mt-1 bg-blue-600/20 text-blue-400 border-blue-400/30">
                         {getAreaTypeLabel(area.type)}
                     </Badge>
                 </div>
 
                 {area.description && (
-                    <p className="text-sm text-gray-600 break-words line-clamp-2">{area.description}</p>
+                    <p className="text-sm text-gray-300 break-words line-clamp-2">{area.description}</p>
                 )}
 
-                {area.capacity && (
-                    <div className="text-xs text-muted-foreground">Capacité: {area.capacity} personnes</div>
-                )}
+
 
                 {area.type === "stage" ? (
                     <div className="space-y-2">
-                        <div className="text-sm font-medium">Prochains événements</div>
+                        <div className="text-sm font-medium text-white">Prochains événements</div>
                         {(() => {
                             const { currentEvent, nextEvent } = getCurrentAndNextEvent(area);
 
@@ -98,8 +96,8 @@ export const AreaPopup: React.FC<AreaPopupProps> = ({ area, onClose }) => {
                                     {/* Événement en cours */}
                                     {currentEvent && (
                                         <div className="space-y-2">
-                                            <div className="text-sm font-medium">En cours</div>
-                                            <div className="rounded-md border p-2 space-y-2 bg-green-50 border-green-200">
+                                            <div className="text-sm font-medium text-blue-400">En cours</div>
+                                            <div className="rounded-md border p-2 space-y-2 bg-blue-600/20 border-blue-400/30">
                                                 {currentEvent.artists?.[0]?.artist?.imgurl && (
                                                     <img
                                                         src={currentEvent.artists[0].artist.imgurl}
@@ -108,8 +106,8 @@ export const AreaPopup: React.FC<AreaPopupProps> = ({ area, onClose }) => {
                                                     />
                                                 )}
                                                 <div>
-                                                    <div className="text-sm font-medium truncate">{currentEvent.name}</div>
-                                                    <div className="text-xs text-muted-foreground">
+                                                    <div className="text-sm font-medium truncate text-white">{currentEvent.name}</div>
+                                                    <div className="text-xs text-gray-400">
                                                         {formatEventDateTime(currentEvent.datestart).date} · {formatEventDateTime(currentEvent.datestart).time}
                                                     </div>
                                                 </div>
@@ -119,7 +117,7 @@ export const AreaPopup: React.FC<AreaPopupProps> = ({ area, onClose }) => {
                                                         {currentEvent.artists[0].artist.tagsJoin?.length > 0 && (
                                                             <div className="flex flex-wrap gap-1">
                                                                 {currentEvent.artists[0].artist.tagsJoin.map((tagJoin: any) => (
-                                                                    <Badge key={tagJoin.tag.id} variant="outline" className="text-[9px] px-1 py-0.5">
+                                                                    <Badge key={tagJoin.tag.id} variant="outline" className="text-[9px] px-1 py-0.5 bg-blue-600/20 text-blue-400 border-blue-400/30">
                                                                         {tagJoin.tag.name}
                                                                     </Badge>
                                                                 ))}
@@ -134,11 +132,11 @@ export const AreaPopup: React.FC<AreaPopupProps> = ({ area, onClose }) => {
                                     {/* Prochain événement */}
                                     {nextEvent && (
                                         <div className="space-y-2">
-                                            <div className="text-sm font-medium">À venir</div>
-                                            <div className="rounded-md border p-2 space-y-2">
+                                            <div className="text-sm font-medium text-blue-400">À venir</div>
+                                            <div className="rounded-md border p-2 space-y-2 bg-gray-800/50 border-gray-600">
                                                 <div>
-                                                    <div className="text-sm font-medium truncate">{nextEvent.name}</div>
-                                                    <div className="text-xs text-muted-foreground">
+                                                    <div className="text-sm font-medium truncate text-white">{nextEvent.name}</div>
+                                                    <div className="text-xs text-gray-400">
                                                         {formatEventDateTime(nextEvent.datestart).date} · {formatEventDateTime(nextEvent.datestart).time}
                                                     </div>
                                                 </div>
@@ -148,7 +146,7 @@ export const AreaPopup: React.FC<AreaPopupProps> = ({ area, onClose }) => {
                                                         {nextEvent.artists[0].artist.tagsJoin?.length > 0 && (
                                                             <div className="flex flex-wrap gap-1">
                                                                 {nextEvent.artists[0].artist.tagsJoin.map((tagJoin: any) => (
-                                                                    <Badge key={tagJoin.tag.id} variant="outline" className="text-[9px] px-1 py-0.5">
+                                                                    <Badge key={tagJoin.tag.id} variant="outline" className="text-[9px] px-1 py-0.5 bg-blue-600/20 text-blue-400 border-blue-400/30">
                                                                         {tagJoin.tag.name}
                                                                     </Badge>
                                                                 ))}
@@ -161,7 +159,7 @@ export const AreaPopup: React.FC<AreaPopupProps> = ({ area, onClose }) => {
                                     )}
 
                                     {!currentEvent && !nextEvent && (
-                                        <div className="text-xs text-muted-foreground">Aucun événement programmé</div>
+                                        <div className="text-xs text-gray-400">Aucun événement programmé</div>
                                     )}
                                 </>
                             );

@@ -96,7 +96,6 @@ const AreaDetailPage = async ({ params }: { params: { id: string } }) => {
 
     return (
         <div className="min-h-screen bg-black text-white relative overflow-hidden">
-            {/* Background pattern metal */}
             <div className="fixed inset-0 opacity-5">
                 <div className="absolute inset-0" style={{
                     backgroundImage: `radial-gradient(circle at 25% 25%, #3b82f6 2px, transparent 2px), radial-gradient(circle at 75% 75%, #ef4444 2px, transparent 2px)`,
@@ -108,7 +107,6 @@ const AreaDetailPage = async ({ params }: { params: { id: string } }) => {
             <Header />
 
             <div className="relative z-10">
-                {/* Hero section avec image de l'area */}
                 <div className="relative h-[60vh] overflow-hidden">
                     {area.imgurl ? (
                         <>
@@ -123,12 +121,6 @@ const AreaDetailPage = async ({ params }: { params: { id: string } }) => {
                         </>
                     ) : (
                         <>
-                            <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-800" />
-                            <div className="absolute inset-0 opacity-20">
-                                <div style={{
-                                    backgroundImage: `repeating-linear-gradient(45deg, #3b82f6 0px, #3b82f6 2px, transparent 2px, transparent 20px)`,
-                                }} className="w-full h-full" />
-                            </div>
                         </>
                     )}
 
@@ -136,8 +128,6 @@ const AreaDetailPage = async ({ params }: { params: { id: string } }) => {
                     <div className="absolute inset-0 flex items-end">
                         <div className="w-full px-8 pb-12">
                             <div className="max-w-4xl mx-auto">
-                                {/* Ligne décorative */}
-                                <div className="w-24 h-1 bg-gradient-to-r from-blue-400 to-red-500 mb-8" />
 
                                 <h1 className="text-5xl md:text-7xl font-bold font-metal text-white mb-4 tracking-wider drop-shadow-2xl">
                                     {area.name}
@@ -165,16 +155,9 @@ const AreaDetailPage = async ({ params }: { params: { id: string } }) => {
                     </div>
                 </div>
 
-                {/* Transition dramatique */}
-                <div className="h-32 bg-gradient-to-b from-transparent via-black/50 to-black relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-transparent to-red-500/10" />
-                </div>
-
-                {/* Section Événements avec style metal intense */}
                 {area.type === "stage" && (
                     <div className="px-8 py-16">
                         <div className="max-w-6xl mx-auto">
-                            {/* Titre section avec effet metal */}
                             <div className="text-center mb-16">
                                 <div className="inline-block relative">
                                     <h2 className="text-4xl md:text-5xl font-bold font-metal text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-white to-red-400 mb-4 tracking-wider">
@@ -184,15 +167,12 @@ const AreaDetailPage = async ({ params }: { params: { id: string } }) => {
                                 </div>
                             </div>
 
-                            {/* Événement en cours - Style INTENSE */}
                             {currentEvent && (
                                 <div className="mb-12">
                                     <div className="relative group">
-                                        {/* Glow effect */}
                                         <div className="absolute -inset-1 bg-gradient-to-r from-red-500 via-blue-500 to-red-500 rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse" />
 
                                         <div className="relative bg-black border-2 border-red-500/50 rounded-xl p-8">
-                                            {/* Header EN COURS */}
                                             <div className="flex items-center justify-center mb-6">
                                                 <div className="bg-gradient-to-r from-red-600 to-red-400 text-black font-bold px-6 py-3 rounded-full text-lg font-metal tracking-wider">
                                                     🔥 LIVE MAINTENANT 🔥
@@ -238,7 +218,6 @@ const AreaDetailPage = async ({ params }: { params: { id: string } }) => {
                                 </div>
                             )}
 
-                            {/* Liste complète des événements à venir */}
                             {upcomingEvents.length > 0 && (
                                 <div className="mb-12">
                                     <div className="text-center mb-12">
@@ -251,15 +230,13 @@ const AreaDetailPage = async ({ params }: { params: { id: string } }) => {
                                     <div className="grid gap-6">
                                         {upcomingEvents.map((event: any, index: number) => (
                                             <div key={event.id} className="relative group">
-                                                {/* Glow subtil pour les événements à venir */}
                                                 <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/20 via-transparent to-blue-500/20 rounded-lg blur opacity-0 group-hover:opacity-100 transition duration-500" />
 
                                                 <div className="relative bg-gradient-to-r from-gray-900/80 to-black/80 border border-blue-400/30 rounded-lg p-6 backdrop-blur-sm hover:border-blue-400/60 transition-all duration-300">
                                                     <div className="flex flex-col md:flex-row gap-6 items-start">
-                                                        {/* Image artiste */}
-                                                        {event.artists?.[0]?.artist?.imgurl && (
-                                                            <div className="flex-shrink-0 relative">
-                                                                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/30 to-transparent rounded-lg blur opacity-50" />
+                                                        <div className="flex-shrink-0 relative">
+                                                            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/30 to-transparent rounded-lg blur opacity-50" />
+                                                            {event.artists?.[0]?.artist?.imgurl ? (
                                                                 <Image
                                                                     src={event.artists[0].artist.imgurl}
                                                                     alt={event.artists[0].artist.name}
@@ -267,14 +244,25 @@ const AreaDetailPage = async ({ params }: { params: { id: string } }) => {
                                                                     height={120}
                                                                     className="relative rounded-lg object-cover border border-blue-400/30"
                                                                 />
-                                                            </div>
-                                                        )}
+                                                            ) : (
+                                                                <div className="relative w-[120px] h-[120px] bg-gradient-to-br from-gray-700 to-gray-900 rounded-lg border border-blue-400/30 flex items-center justify-center">
+                                                                    <div className="text-4xl">🎸</div>
+                                                                </div>
+                                                            )}
+                                                        </div>
 
                                                         <div className="flex-1">
                                                             <div className="flex items-start justify-between mb-3">
-                                                                <h4 className="text-xl md:text-2xl font-bold font-metal text-white group-hover:text-blue-300 transition-colors">
-                                                                    {event.name}
-                                                                </h4>
+                                                                <div>
+                                                                    <h4 className="text-xl md:text-2xl font-bold font-metal text-white group-hover:text-blue-300 transition-colors">
+                                                                        {event.name}
+                                                                    </h4>
+                                                                    {event.artists?.[0]?.artist?.name && (
+                                                                        <div className="text-blue-300 text-sm font-semibold mt-1">
+                                                                            🎤 {event.artists[0].artist.name}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
                                                                 <div className="text-blue-400 font-bold text-lg">
                                                                     #{index + 1}
                                                                 </div>
@@ -313,7 +301,6 @@ const AreaDetailPage = async ({ params }: { params: { id: string } }) => {
                     </div>
                 )}
 
-                {/* Section Localisation avec style metal */}
                 {area.latitude && area.longitude && (
                     <div className="px-8 py-16">
                         <div className="max-w-4xl mx-auto">
@@ -325,7 +312,6 @@ const AreaDetailPage = async ({ params }: { params: { id: string } }) => {
                             </div>
 
                             <div className="relative group">
-                                {/* Glow effect */}
                                 <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/30 via-transparent to-blue-500/30 rounded-xl blur opacity-50 group-hover:opacity-75 transition duration-500" />
 
                                 <div className="relative bg-gradient-to-r from-gray-900/90 to-black/90 border-2 border-blue-400/30 rounded-xl p-8 backdrop-blur-sm">
@@ -355,7 +341,6 @@ const AreaDetailPage = async ({ params }: { params: { id: string } }) => {
                     </div>
                 )}
 
-                {/* Footer avec pattern metal */}
                 <div className="h-32 bg-gradient-to-t from-black via-gray-900/50 to-transparent relative">
                     <div className="absolute inset-0 opacity-10">
                         <div style={{

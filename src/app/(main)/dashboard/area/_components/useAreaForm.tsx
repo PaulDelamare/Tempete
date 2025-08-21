@@ -5,11 +5,20 @@ import { logRHFErrors, debugZodParse } from "@/helpers/form/form";
 import { convertImageToBase64 } from "@/helpers/file/convertImageToBase64";
 import { useAuthState } from "@/hooks/useAuthState";
 import { z } from "zod";
+import { Prisma } from "@/generated/prisma";
 
 type AreaFormValues = z.infer<typeof CreateAreaSchema> & { id?: string };
 
 export function useAreaForm(initialData?: Partial<AreaFormValues>) {
-    const { success, loading, error, setError, setLoading, setSuccess, resetState } = useAuthState();
+    const {
+        success,
+        loading,
+        error,
+        setError,
+        setLoading,
+        setSuccess,
+        resetState,
+    } = useAuthState();
 
     const form: UseFormReturn<AreaFormValues> = useForm<AreaFormValues>({
         resolver: zodResolver(CreateAreaSchema),
@@ -27,25 +36,44 @@ export function useAreaForm(initialData?: Partial<AreaFormValues>) {
                 imgurl = await convertImageToBase64(values.image);
             }
 
+            const payload = {
+                ...values,
+                latitude: values.latitude
+                    ? new Prisma.Decimal(String(values.latitude))
+                    : null,
+                longitude: values.longitude
+                    ? new Prisma.Decimal(String(values.longitude))
+                    : null,
+                imgurl,
+                capacity: values.capacity
+                    ? parseInt(String(values.capacity), 10)
+                    : null,
+                id: initialData?.id ?? values.id,
+            };
+
+            console.log(typeof payload.latitude);
+
             const response = await fetch("/api/area", {
                 method: initialData?.id ? "PUT" : "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    ...values,
-                    id: initialData?.id,
-                    imgurl,
-                }),
+                body: JSON.stringify(payload),
             });
 
             setLoading(false);
 
             if (!response.ok) {
-                const data: { message?: string } = await response.json().catch(() => ({}));
+                const data: { message?: string } = await response
+                    .json()
+                    .catch(() => ({}));
                 setError(data?.message || "Erreur lors de l'enregistrement.");
                 return;
             }
 
-            setSuccess(initialData?.id ? "Zone modifiée avec succès." : "Zone créée avec succès.");
+            setSuccess(
+                initialData?.id
+                    ? "Zone modifiée avec succès."
+                    : "Zone créée avec succès."
+            );
         } catch (err: unknown) {
             setLoading(false);
             setError("Erreur inattendue");

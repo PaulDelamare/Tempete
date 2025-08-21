@@ -75,7 +75,6 @@ export default function ArtistPage() {
         });
         const data = await res.json();
         setArtists(data);
-        console.log(data);
     };
 
     useEffect(() => {
@@ -102,7 +101,6 @@ export default function ArtistPage() {
             method: "DELETE",
         });
         setReload((prev) => prev + 1);
-        console.log(`Artist with ID ${artistId} deleted`);
     };
 
     const artistConfigs: ColumnConfig<Artist>[] = [

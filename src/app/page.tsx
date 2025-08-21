@@ -38,7 +38,6 @@ export default function Home() {
         const response = await fetch("/api/artist");
         if (response.ok) {
           const data = await response.json();
-          console.log("Artistes récupérés:", data);
           setArtists(data);
         }
       } catch (error) {

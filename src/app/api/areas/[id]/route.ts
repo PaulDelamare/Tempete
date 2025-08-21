@@ -81,7 +81,6 @@ export async function DELETE(
     try {
         const paramsData = await Promise.resolve(params);
 
-        console.log("Deleting area with ID:", paramsData.id);
         const validatedData = validateBody(idSchema, paramsData);
 
         await deleteArea(validatedData.id);

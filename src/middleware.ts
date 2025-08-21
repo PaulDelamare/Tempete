@@ -1,20 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { betterFetch } from "@better-fetch/fetch";
+import { auth } from "@/lib/auth";
 
 type Session = typeof auth.$Infer.Session;
 
 export async function middleware(request: NextRequest) {
      const { pathname, origin } = request.nextUrl;
 
-     if (pathname === "/api/auth/get-session") {
+     const publicRoutes = [
+          "/api/auth/get-session",
+          "/api/auth/signin",
+          "/api/auth/signup"
+     ];
+
+     if (publicRoutes.some((route) => pathname.startsWith(route))) {
           return NextResponse.next();
      }
 
-     const getProtectedRoutes = ["/api/user", "/dashboard"];
+     const protectedRoutes = ["/api/user", "/dashboard"];
 
      const needsSession =
-          request.method !== "GET" || getProtectedRoutes.some((route) => pathname.startsWith(route));
+          request.method !== "GET" || protectedRoutes.some((route) => pathname.startsWith(route));
 
      if (!needsSession) {
           return NextResponse.next();

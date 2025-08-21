@@ -60,17 +60,23 @@ async function getAreas(): Promise<Area[]> {
     }
 }
 
-const MapPage = async ({ searchParams }: { searchParams: { lat?: string; lng?: string; zoom?: string } }) => {
+interface MapPageProps {
+    searchParams: Promise<{ lat?: string; lng?: string; zoom?: string }>;
+}
+
+const MapPage = async ({ searchParams }: MapPageProps) => {
     const areas = await getAreas();
 
-    const initialLatitude = searchParams.lat ? parseFloat(searchParams.lat) : undefined;
-    const initialLongitude = searchParams.lng ? parseFloat(searchParams.lng) : undefined;
-    const initialZoom = searchParams.zoom ? parseFloat(searchParams.zoom) : undefined;
+    const resolvedParams = await searchParams;
+
+    const initialLatitude = resolvedParams.lat ? parseFloat(resolvedParams.lat) : undefined;
+    const initialLongitude = resolvedParams.lng ? parseFloat(resolvedParams.lng) : undefined;
+    const initialZoom = resolvedParams.zoom ? parseFloat(resolvedParams.zoom) : undefined;
 
     return (
         <div className="w-full h-screen flex flex-col">
-            <MapComponent 
-                areas={areas} 
+            <MapComponent
+                areas={areas}
                 initialLatitude={initialLatitude}
                 initialLongitude={initialLongitude}
                 initialZoom={initialZoom}

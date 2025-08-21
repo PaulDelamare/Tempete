@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useEffect, useMemo, useState} from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import ArtistForm from "./_components/ArtistForm";
 import ArtistModal from "./_components/ArtistModal";
 import { Button } from "@/components/ui/button";
@@ -41,15 +41,8 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {Input} from "@/components/ui/input";
-
-type Tag = {
-    id: string;
-    name: string;
-    description?: string | null;
-    created_at: string;
-    modified_at: string;
-};
+import { Input } from "@/components/ui/input";
+import { Tag } from "@/generated/prisma";
 
 type Artist = {
     id: string;

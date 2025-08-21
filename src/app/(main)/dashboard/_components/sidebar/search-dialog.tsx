@@ -9,6 +9,7 @@ import {
     GraduationCap,
     Forklift,
     Search,
+    User,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,7 @@ import {
 
 const searchItems = [
     { group: "Dashboards", icon: LayoutDashboard, label: "Default" },
-    { group: "Dashboards", icon: ChartBar, label: "CRM", disabled: true },
+    { group: "Dashboards", icon: User, label: "Artistes", disabled: true },
     { group: "Dashboards", icon: Gauge, label: "Analytics", disabled: true },
     {
         group: "Dashboards",

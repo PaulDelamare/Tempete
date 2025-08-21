@@ -17,6 +17,7 @@ interface CardWrapperType {
     cardFooterDescription?: string;
     cardFooterLink?: string;
     className?: string;
+    maxWidth?: string;
 }
 
 const CardWrapper = ({
@@ -27,9 +28,12 @@ const CardWrapper = ({
     cardFooterDescription = "",
     cardFooterLink,
     className = "",
+    maxWidth = "max-w-md",
 }: CardWrapperType) => {
     return (
-        <Card className={`max-w-md w-full relative ${className} border-2 shadow-md`}>
+        <Card
+            className={`${maxWidth} w-full relative ${className} border-2 shadow-md`}
+        >
             <CardHeader>
                 <CardTitle>{cardTitle}</CardTitle>
                 <CardDescription>{cardDescription}</CardDescription>

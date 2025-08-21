@@ -10,44 +10,51 @@ export async function middleware(request: NextRequest) {
      const publicRoutes = [
           "/api/auth/get-session",
           "/api/auth/signin",
-          "/api/auth/signup"
+          "/api/auth/signout",
+          "/sign-in",
+          "/sign-up",
      ];
 
      if (publicRoutes.some((route) => pathname.startsWith(route))) {
           return NextResponse.next();
      }
 
-     const protectedRoutes = ["/api/user", "/dashboard"];
-
-     const needsSession =
-          request.method !== "GET" || protectedRoutes.some((route) => pathname.startsWith(route));
-
-     if (!needsSession) {
+     if (request.method === "GET" && pathname !== "/api/user") {
           return NextResponse.next();
      }
 
-     const { data: session } = await betterFetch<Session>("/api/auth/get-session", {
-          baseURL: origin,
-          headers: {
-               cookie: request.headers.get("cookie") || "",
-          },
-     });
+     const { data: session } = await betterFetch<Session>(
+          "/api/auth/get-session",
+          {
+               baseURL: origin,
+               headers: {
+                    cookie: request.headers.get("cookie") || "",
+               },
+          }
+     );
 
      if (!session) {
           if (request.headers.get("accept")?.includes("text/html")) {
                return NextResponse.redirect(new URL("/sign-in", request.url));
-          } else {
-               return new NextResponse(JSON.stringify({ error: "Unauthorized" }), {
+          }
+
+          return new NextResponse(
+               JSON.stringify({ error: "Unauthorized" }),
+               {
                     status: 401,
                     headers: { "Content-Type": "application/json" },
-               });
-          }
+               }
+          );
      }
 
      return NextResponse.next();
 }
 
 export const config = {
-     matcher: ["/api/:path*", "/dashboard/:path*"],
+     matcher: [
+          "/api/user/:path*",
+          "/dashboard/:path*",
+     ],
+     exclude: ["/api/auth/:path*"],
      runtime: "nodejs",
 };

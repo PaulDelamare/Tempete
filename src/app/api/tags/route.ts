@@ -19,7 +19,7 @@ export async function POST(req: Request) {
         const body = await req.json()
         const tag = await prisma.tag.create({
             data: {
-                name: body.name,                 // unique
+                name: body.name,
                 description: body.description ?? null,
             },
         })

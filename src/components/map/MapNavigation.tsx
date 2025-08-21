@@ -3,16 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { mainNavItems } from "@/config/navigation";
 
 export default function MapNavigation() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
-
-  const navItems = [
-    { name: "Accueil", href: "/" },
-    { name: "Espaces", href: "/areas" },
-    { name: "Carte", href: "/map" },
-  ];
 
   return (
     <nav className="relative z-50">
@@ -56,7 +51,7 @@ export default function MapNavigation() {
       >
         <div className="p-8 pt-20">
           <div className="space-y-6">
-            {navItems.map((item) => (
+            {mainNavItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}

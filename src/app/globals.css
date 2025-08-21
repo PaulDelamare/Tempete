@@ -126,6 +126,15 @@
   * {
     @apply border-border outline-ring/50;
   }
+  
+  /* Réinitialiser le curseur par défaut pour la carte */
+  .maplibregl-map {
+    cursor: default !important;
+  }
+  
+  .maplibregl-canvas {
+    cursor: default !important;
+  }
 
   body {
     @apply bg-background text-foreground;

@@ -1,6 +1,8 @@
 import React from "react";
 import { MapComponent } from "@/components/map/MapComponent";
 import { prisma } from "@/lib/prisma";
+import Navigation from "@/components/Navigation";
+import Header from "@/components/Header";
 
 interface Area {
     id: string;
@@ -65,6 +67,8 @@ const MapPage = async () => {
 
     return (
         <div className="w-full h-screen flex flex-col">
+            <Navigation />
+            <Header />
             <MapComponent areas={areas} />
         </div>
     );

@@ -11,6 +11,7 @@ export default function Navigation() {
   const navItems = [
     { name: "Accueil", href: "/" },
     { name: "Espaces", href: "/areas" },
+    { name: "Carte", href: "/map" },
   ];
 
   return (

@@ -13,32 +13,34 @@ export const AreaTypeEnum = z.enum([
     "medical",
 ]);
 
+const decimalRegex = /^-?\d{1,3}(?:\.\d{1,20})?$/;
+
 export const CreateAreaSchema = z.object({
-    name: z.string().min(2, { message: "Nom trop court" }).max(100, { message: "Nom trop long" }),
-    description: z.string().max(1000, { message: "Description trop longue" }).optional().nullable(),
+    name: z.string().min(2).max(100),
+    description: z.string().max(1000).optional().nullable(),
     type: AreaTypeEnum,
-    latitude: z
-        .number()
-        .refine((val) => val >= -90 && val <= 90, { message: "Latitude invalide" })
+    latitude: z.regex(decimalRegex, "Latitude invalide, 20 décimales max"),
+
+    longitude: z.regex(decimalRegex, "Longitude invalide, 20 décimales max"),
+
+    capacity: z
+        .string({ error: "Capacité est requise" })
+        .regex(/^\d+$/, "Capacité doit être un entier positif")
         .optional()
         .nullable(),
-    longitude: z
-        .number()
-        .refine((val) => val >= -180 && val <= 180, { message: "Longitude invalide" })
-        .optional()
-        .nullable(),
-    capacity: z.number().int().positive().optional().nullable(),
     image: z
         .any()
         .optional()
         .nullable()
-        .refine((v) => v === undefined || v === null || v instanceof File, { message: "Fichier invalide" })
-        .refine((v) => !v || (typeof v.size === "number" && v.size <= MAX_FILE_SIZE), {
-            message: `Taille max ${MAX_FILE_SIZE / 1024 / 1024}MB`,
-        })
-        .refine((v) => !v || ACCEPTED_IMAGE_TYPES.includes(v.type), {
-            message: "Formats autorisés : jpg, png, webp",
-        }),
+        .refine((v) => !v || v instanceof File, "Fichier invalide")
+        .refine(
+            (v) => !v || v.size <= MAX_FILE_SIZE,
+            `Taille max ${MAX_FILE_SIZE / 1024 / 1024}MB`
+        )
+        .refine(
+            (v) => !v || ACCEPTED_IMAGE_TYPES.includes(v.type),
+            "Formats autorisés : jpg, png, webp"
+        ),
 });
 
 export const AreaSchema = z.object({

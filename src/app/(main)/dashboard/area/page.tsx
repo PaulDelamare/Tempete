@@ -1,48 +1,57 @@
 "use client";
 
-import React, {useEffect, useMemo, useState} from "react";
-import {buildColumnsFromConfig, ColumnConfig} from "@/app/(main)/dashboard/_components/table/columns";
-import {Badge} from "@/components/ui/badge";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+    buildColumnsFromConfig,
+    ColumnConfig,
+} from "@/app/(main)/dashboard/_components/table/columns";
+import { Badge } from "@/components/ui/badge";
 import {
     DropdownMenu,
-    DropdownMenuContent, DropdownMenuItem,
+    DropdownMenuContent,
+    DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
-    DropdownMenuTrigger
+    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {EllipsisVertical} from "lucide-react";
+import { EllipsisVertical } from "lucide-react";
 import {
-    AlertDialog, AlertDialogAction, AlertDialogCancel,
-    AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger
+    AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {useDataTableInstance} from "@/hooks/use-data-table-instance";
-import {Button} from "@/components/ui/button";
-import {Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
-import {DataTableViewOptions} from "@/components/data-table/data-table-view-options";
-import {DataTable} from "@/components/data-table/data-table";
-import {DataTablePagination} from "@/components/data-table/data-table-pagination";
+import { useDataTableInstance } from "@/hooks/use-data-table-instance";
+import { Button } from "@/components/ui/button";
+import {
+    Card,
+    CardAction,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
+import { DataTable } from "@/components/data-table/data-table";
+import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import AreaForm from "@/app/(main)/dashboard/area/_components/AreaForm";
 import AreaModal from "@/app/(main)/dashboard/area/_components/AreaModal";
-import {AreaType} from "@/generated/prisma";
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
-import {Input} from "@/components/ui/input";
-
-type Area = {
-    id: string;
-    name: string;
-    description?: string | null;
-    capacity?: number | null;
-    type?: AreaType;
-    imgurl?: string | null;
-    created_at: string;
-    modified_at: string;
-};
+import { Area, AreaType, Prisma } from "@/generated/prisma";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 export default function AreaPage() {
-
     const [modalOpen, setModalOpen] = useState(false);
     const [areas, setAreas] = useState<Area[]>([]);
     const [selectedArea, setSelectedArea] = useState<Area | null>(null);
@@ -68,8 +77,11 @@ export default function AreaPage() {
             description: "",
             imgurl: null,
             type: AreaType.stage,
-            created_at: new Date().toISOString(),
-            modified_at: new Date().toISOString(),
+            latitude: null,
+            longitude: null,
+            capacity: null,
+            created_at: new Date(),
+            modified_at: new Date(),
         });
         setModalOpen(true);
     };
@@ -84,7 +96,9 @@ export default function AreaPage() {
     const [filter, setFilter] = useState("");
     const [typeFilter, setTypeFilter] = useState<string>("");
     const uniqueTypes = useMemo(() => {
-        return Array.from(new Set(areas.map((row) => row.type))).filter(Boolean);
+        return Array.from(new Set(areas.map((row) => row.type))).filter(
+            (type): type is AreaType => typeof type === "string"
+        );
     }, [areas]);
     const filteredData = useMemo(() => {
         return areas.filter((row) => {
@@ -93,7 +107,10 @@ export default function AreaPage() {
                 row.id.toString().toLowerCase().includes(value) ||
                 row.name?.toLowerCase().includes(value);
 
-            const matchesType = typeFilter && typeFilter !== "all" ? row.type === typeFilter : true;
+            const matchesType =
+                typeFilter && typeFilter !== "all"
+                    ? row.type === typeFilter
+                    : true;
 
             return matchesText && matchesType;
         });
@@ -162,10 +179,9 @@ export default function AreaPage() {
                                             Supprimer cette zone ?
                                         </AlertDialogTitle>
                                         <AlertDialogDescription>
-                                            Cette action est irréversible.
-                                            La zone{" "}
-                                            <strong>{area.name}</strong> sera
-                                            définitivement supprimée.
+                                            Cette action est irréversible. La
+                                            zone <strong>{area.name}</strong>{" "}
+                                            sera définitivement supprimée.
                                         </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
@@ -217,12 +233,17 @@ export default function AreaPage() {
                         </div>
                         <CardAction>
                             <div className="flex items-center gap-2">
-                                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                                <Select
+                                    value={typeFilter}
+                                    onValueChange={setTypeFilter}
+                                >
                                     <SelectTrigger className="sm:w-48">
                                         <SelectValue placeholder="Filtrer par type" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="all">Tous</SelectItem>
+                                        <SelectItem value="all">
+                                            Tous
+                                        </SelectItem>
                                         {uniqueTypes.map((type) => (
                                             <SelectItem key={type} value={type}>
                                                 {type}
@@ -259,11 +280,14 @@ export default function AreaPage() {
                     <AreaForm
                         area={{
                             ...selectedArea,
-                            type: selectedArea.type,
+                            type: selectedArea.type ?? AreaType.stage,
                             description: selectedArea.description ?? null,
                             imgurl: selectedArea.imgurl ?? null,
                             created_at: new Date(selectedArea.created_at),
                             modified_at: new Date(selectedArea.modified_at),
+                            capacity: selectedArea.capacity ?? 0,
+                            latitude: selectedArea.latitude ?? "0",
+                            longitude: selectedArea.longitude ?? "0",
                         }}
                     />
                 )}

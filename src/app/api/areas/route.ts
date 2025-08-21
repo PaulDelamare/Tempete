@@ -48,7 +48,7 @@ import { createArea, findAllArea, updateArea } from "@/services/area.service";
 
 /**
  * @openapi
- * /api/area:
+ * /api/areas:
  *   get:
  *     summary: Récupère la liste des zones
  *     tags:
@@ -77,7 +77,7 @@ export async function GET() {
 
 /**
  * @openapi
- * /api/area:
+ * /api/areas:
  *   post:
  *     summary: Crée une nouvelle zone
  *     tags:
@@ -114,7 +114,7 @@ export async function POST(req: Request) {
 
 /**
  * @openapi
- * /api/area:
+ * /api/areas:
  *   put:
  *     summary: Met à jour une zone
  *     tags:

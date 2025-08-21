@@ -8,7 +8,7 @@ type Params = { params: { id: string } }
 
 /**
  * @openapi
- * /api/area/{id}:
+ * /api/areas/{id}:
  *   get:
  *     summary: Récupère une zone par ID
  *     tags:
@@ -48,7 +48,7 @@ export async function GET(_req: Request, { params }: Params) {
 
 /**
  * @openapi
- * /api/area/{id}:
+ * /api/areas/{id}:
  *   delete:
  *     summary: Supprime une zone par ID
  *     tags:

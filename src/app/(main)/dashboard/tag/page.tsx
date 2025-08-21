@@ -59,9 +59,8 @@ export default function TagPage() {
     const fetchTags = async () => {
         const res = await fetch("/api/tags", { cache: "no-store" });
         const data = await res.json();
-        console.log(data);
         setTags(data);
-        console.log(tags);
+
     };
 
     useEffect(() => {

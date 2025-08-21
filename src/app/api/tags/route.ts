@@ -215,8 +215,6 @@ export async function PUT(req: Request) {
     try {
         const body = await req.json();
 
-        console.log(body)
-
         const validatedData = validateBody(MergeTagPutSchema, body);
 
         const tag = await updateTag(validatedData.id, validatedData);

@@ -95,6 +95,21 @@ const MapPage: React.FC = () => {
 
     const availableTypes = Array.from(new Set(areas.map(area => area.type)));
 
+    const getAreaTypeLabel = (type: string) => {
+        switch (type) {
+            case 'stage':
+                return 'Scène';
+            case 'food':
+                return 'Restauration';
+            case 'merch':
+                return 'Boutique';
+            case 'chill':
+                return 'Détente';
+            default:
+                return type.charAt(0).toUpperCase() + type.slice(1);
+        }
+    };
+
     const getAreaIcon = (type: string) => {
         const iconProps = { size: 16, className: "text-white" };
 
@@ -213,6 +228,7 @@ const MapPage: React.FC = () => {
 
                         console.log("Coordonnées cliquées:", { longitude: event.lngLat.lng, latitude: event.lngLat.lat });
                     }}
+                    cursor="default"
                 >
                     {filteredAreas.map((area) => (
                         <Marker
@@ -270,7 +286,7 @@ const MapPage: React.FC = () => {
                             <div className="w-[260px] max-w-[260px] px-4 py-3 space-y-3">
                                 <div>
                                     <div className="text-base font-semibold leading-tight truncate">{selectedArea.name}</div>
-                                    <Badge variant="secondary" className="w-fit px-2 py-0.5 text-[10px] mt-1">{selectedArea.type}</Badge>
+                                    <Badge variant="secondary" className="w-fit px-2 py-0.5 text-[10px] mt-1">{getAreaTypeLabel(selectedArea.type)}</Badge>
                                 </div>
 
                                 {selectedArea.description && (
@@ -380,7 +396,7 @@ const MapPage: React.FC = () => {
                             }}
                             className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-lg text-sm cursor-pointer w-64 sm:w-auto sm:min-w-[140px]"
                         >
-                            <span>{selectedType === "all" ? "Tous les types" : selectedType.charAt(0).toUpperCase() + selectedType.slice(1)}</span>
+                            <span>{selectedType === "all" ? "Tous les types" : getAreaTypeLabel(selectedType)}</span>
                         </div>
 
                         <div className="absolute left-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
@@ -431,7 +447,7 @@ const MapPage: React.FC = () => {
                                         <div className={`w-6 h-6 rounded-full border border-white flex items-center justify-center flex-shrink-0 ${getAreaColor(type).replace('hover:', '')}`}>
                                             {React.cloneElement(getAreaIcon(type) as React.ReactElement, { size: 12 })}
                                         </div>
-                                        <span className="text-sm">{type.charAt(0).toUpperCase() + type.slice(1)}</span>
+                                        <span className="text-sm">{getAreaTypeLabel(type)}</span>
                                     </div>
                                 ))}
                             </div>

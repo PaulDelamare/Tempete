@@ -15,7 +15,7 @@ export default function ArtistFilter({ onFilter }: { onFilter: (filters: Filters
   useEffect(() => {
     async function fetchTags() {
       try {
-        const res = await fetch("/api/tag");
+        const res = await fetch("/api/tags");
         if (res.ok) {
           const data = await res.json();
           setTags(data);
@@ -92,7 +92,7 @@ export default function ArtistFilter({ onFilter }: { onFilter: (filters: Filters
   useEffect(() => {
     async function fetchTags() {
       try {
-        const res = await fetch("/api/tag");
+        const res = await fetch("/api/tags");
         if (res.ok) {
           const data = await res.json();
           setTags(data);

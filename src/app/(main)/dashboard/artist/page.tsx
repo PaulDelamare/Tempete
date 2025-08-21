@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import ArtistForm from "./_components/ArtistForm";
 import ArtistModal from "./_components/ArtistModal";
 import { Button } from "@/components/ui/button";
@@ -41,14 +41,9 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { Tag } from "@/generated/prisma";
 
-type Tag = {
-    id: string;
-    name: string;
-    description?: string | null;
-    created_at: string;
-    modified_at: string;
-};
 
 type Artist = {
     id: string;
@@ -102,6 +97,19 @@ export default function ArtistPage() {
         });
         setReload((prev) => prev + 1);
     };
+
+    const [filter, setFilter] = useState("");
+    const filteredData = useMemo(() => {
+        return artists.filter((row) => {
+            const value = filter.toLowerCase();
+            const matchesText =
+                row.id.toString().toLowerCase().includes(value) ||
+                row.nickname?.toString().toLowerCase().includes(value) ||
+                row.name?.toLowerCase().includes(value);
+
+            return matchesText;
+        });
+    }, [artists, filter]);
 
     const artistConfigs: ColumnConfig<Artist>[] = [
         { key: "name", title: "Nom", sortable: true },
@@ -215,7 +223,7 @@ export default function ArtistPage() {
     const artistColumns = buildColumnsFromConfig<Artist>(artistConfigs);
 
     const table = useDataTableInstance({
-        data: artists,
+        data: filteredData,
         columns: artistColumns,
         getRowId: (row) => String(row.id),
     });
@@ -238,6 +246,11 @@ export default function ArtistPage() {
                         </div>
                         <CardAction>
                             <div className="flex items-center gap-2">
+                                <Input
+                                    placeholder="Rechercher..."
+                                    value={filter}
+                                    onChange={(e) => setFilter(e.target.value)}
+                                />
                                 <DataTableViewOptions table={table} />
                             </div>
                         </CardAction>

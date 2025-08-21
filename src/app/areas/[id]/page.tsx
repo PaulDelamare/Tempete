@@ -86,7 +86,9 @@ const getEventsData = (area: Area) => {
 };
 
 const AreaDetailPage = async ({ params }: { params: { id: string } }) => {
-    const area = await getArea(params.id);
+    const { id } = await Promise.resolve(params);
+
+    const area = await getArea(id);
 
     if (!area) {
         notFound();

@@ -45,7 +45,6 @@ export default function ArtistForm({
                 return { name: "", url: "" };
             })
             : [],
-        // Pré-sélection : IDs des tags déjà liés à l’artiste
         tagIds: artist?.tagsJoin?.map((t) => t.tag.id) ?? [],
     });
 
@@ -55,7 +54,6 @@ export default function ArtistForm({
         { name: "bio", label: "Biographie", placeholder: "Biographie de l'artiste", type: "textarea" },
     ] as const;
 
-    // ⚠️ IMPORTANT : on ne passe plus d'initial => le hook va FETCH TOUS les tags
     const tagsOptions = useTags();
 
     return (

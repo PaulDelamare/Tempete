@@ -135,7 +135,7 @@ export default function ArtistPage() {
                 const tagsJoin = val as { tag: Tag }[];
                 if (!tagsJoin || tagsJoin.length === 0) return <span>-</span>;
 
-                const visibleTags = tagsJoin.slice(0, 3); // max 3 visibles
+                const visibleTags = tagsJoin.slice(0, 3);
                 const hiddenCount = tagsJoin.length - visibleTags.length;
 
                 return (

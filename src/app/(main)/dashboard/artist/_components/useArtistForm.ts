@@ -25,7 +25,6 @@ export function useArtistForm(initialData?: Partial<ArtistFormValues>) {
           mode: "onSubmit",
      });
 
-     // Reset form when initialData changes
      useEffect(() => {
           if (!initialData) return;
           form.reset({

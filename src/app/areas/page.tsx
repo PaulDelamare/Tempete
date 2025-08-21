@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import Navigation from "@/components/Navigation";
 
 interface Area {
@@ -99,11 +100,11 @@ export default function AreasPage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 auto-rows-fr">
               {areas.map((area) => (
-                <div key={area.id} className="relative group">
+                <Link key={area.id} href={`/areas/${area.id}`} className="relative group">
                   {/* Glow */}
                   <div className="absolute inset-0 rounded-lg blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-blue-500/20 to-cyan-500/20" />
 
-                  <div className="relative bg-black/80 border border-blue-400/40 rounded-lg p-6 h-full hover:border-blue-400 transition-colors duration-300 flex flex-col">
+                  <div className="relative bg-black/80 border border-blue-400/40 rounded-lg p-6 h-full hover:border-blue-400 transition-colors duration-300 flex flex-col cursor-pointer">
                     {/* Image */}
                     <div className="w-full h-64 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
                       {area.imgurl ? (
@@ -136,7 +137,7 @@ export default function AreasPage() {
                       </span>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}

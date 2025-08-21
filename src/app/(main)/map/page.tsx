@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useEffect } from "react";
-import { Map, Marker, Popup } from "@vis.gl/react-maplibre";
+import { Map, Marker, Popup, GeolocateControl } from "@vis.gl/react-maplibre";
 import { formatEventDateTime } from "@/lib/utils/date";
 import {
     Music,
@@ -282,7 +282,7 @@ const MapPage: React.FC = () => {
                                         {(() => {
                                             const { currentEvent, nextEvent } = getCurrentAndNextEvent(selectedArea);
 
-                                            return (
+    return (
                                                 <>
                                                     {currentEvent && (
                                                         <div className="space-y-2">
@@ -295,7 +295,7 @@ const MapPage: React.FC = () => {
                                                                         className="w-full h-20 object-cover rounded"
                                                                     />
                                                                 )}
-                                                                <div>
+        <div>
                                                                     <div className="text-sm font-medium truncate">{currentEvent.name}</div>
                                                                     <div className="text-xs text-muted-foreground">
                                                                         {formatEventDateTime(currentEvent.datestart).date} · {formatEventDateTime(currentEvent.datestart).time}
@@ -323,7 +323,7 @@ const MapPage: React.FC = () => {
                                                         <div className="space-y-2">
                                                             <div className="text-sm font-medium">À venir</div>
                                                             <div className="rounded-md border p-2 space-y-2">
-                                                                <div>
+            <div>
                                                                     <div className="text-sm font-medium truncate">{nextEvent.name}</div>
                                                                     <div className="text-xs text-muted-foreground">
                                                                         {formatEventDateTime(nextEvent.datestart).date} · {formatEventDateTime(nextEvent.datestart).time}
@@ -343,7 +343,7 @@ const MapPage: React.FC = () => {
                                                                         )}
                                                                     </div>
                                                                 )}
-                                                            </div>
+            </div>
                                                         </div>
                                                     )}
 
@@ -362,22 +362,23 @@ const MapPage: React.FC = () => {
                                                 alt={selectedArea.name}
                                                 className="w-full h-32 object-cover rounded"
                                             />
-                                        </div>
-                                    )
+        </div>
+    )
                                 )}
                             </div>
                         </Popup>
                     )}
+                    <GeolocateControl position="bottom-right" />
                 </Map>
 
-                <div className="absolute top-4 right-4 z-10 flex gap-2">
+                <div className="absolute top-4 right-4 z-10 flex flex-col sm:flex-row gap-2">
                     <div className="relative">
                         <div
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setIsSelectOpen(!isSelectOpen);
                             }}
-                            className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-lg text-sm cursor-pointer min-w-[140px]"
+                            className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-lg text-sm cursor-pointer w-64 sm:w-auto sm:min-w-[140px]"
                         >
                             <span>{selectedType === "all" ? "Tous les types" : selectedType.charAt(0).toUpperCase() + selectedType.slice(1)}</span>
                         </div>

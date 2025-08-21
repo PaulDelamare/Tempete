@@ -11,11 +11,10 @@ import {
     Fingerprint,
     SquareArrowUpRight,
     LayoutDashboard,
-    ChartBar,
-    Banknote,
-    Gauge,
     GraduationCap,
-    type LucideIcon, LandPlot, User
+    type LucideIcon,
+    LandPlot,
+    User,
 } from "lucide-react";
 
 export interface NavSubItem {
@@ -64,10 +63,9 @@ export const sidebarItems: NavGroup[] = [
                 icon: LandPlot,
             },
             {
-                title: "Analytics",
-                url: "/dashboard/analytics",
-                icon: Gauge,
-                comingSoon: true,
+                title: "Tags",
+                url: "/dashboard/tag",
+                icon: ReceiptText,
             },
             {
                 title: "E-commerce",

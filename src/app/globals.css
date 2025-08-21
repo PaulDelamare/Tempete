@@ -151,7 +151,14 @@
   }
 
   .maplibregl-popup-content {
-    padding: 15px 0 !important;
+    padding: 0 !important;
+    background: black !important;
+    border-radius: 8px !important;
+  }
+
+  /* Style pour la flèche de la popup */
+  .maplibregl-popup-anchor-bottom .maplibregl-popup-tip {
+    border-top-color: black !important;
   }
 
   /* Style pour le bouton de fermeture de la popup */
@@ -160,7 +167,7 @@
     border: none !important;
     font-size: 18px !important;
     font-weight: bold !important;
-    color: #6b7280 !important;
+    color: #3b82f6 !important;
     padding: 8px !important;
     width: 30px !important;
     height: 30px !important;
@@ -169,9 +176,9 @@
     justify-content: center !important;
     cursor: pointer !important;
     transition: color 0.2s ease !important;
-  }
+}
 
-  .maplibregl-popup-close-button:hover {
-    color: #374151 !important;
-  }
+.maplibregl-popup-close-button:hover {
+    color: #2563eb !important;
+}
 }

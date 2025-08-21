@@ -9,7 +9,13 @@ import ImageUploadField from "@/components/form/uploadFile";
 import TagsField from "./TagsField";
 import FormError from "@/components/auth/form-error";
 import { FormSuccess } from "@/components/auth/form-success";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -18,28 +24,56 @@ import { Artist, Tag } from "@/generated/prisma";
 import z from "zod";
 import { CreateArtistSchema } from "@/helpers/zod/artist/create-artist-schema";
 
-export default function ArtistForm({ artist }: { artist: Artist & { tagsJoin: { tag: Tag }[] } }) {
-
+export default function ArtistForm({
+    artist,
+}: {
+    artist: Artist & { tagsJoin: { tag: Tag }[] };
+}) {
     const fields = [
-        { name: "name", label: "Nom", placeholder: "Nom de l'artiste", type: "text" },
-        { name: "nickname", label: "Surnom", placeholder: "Surnom (optionnel)", type: "text" },
-        { name: "bio", label: "Biographie", placeholder: "Biographie de l'artiste", type: "textarea" },
+        {
+            name: "name",
+            label: "Nom",
+            placeholder: "Nom de l'artiste",
+            type: "text",
+        },
+        {
+            name: "nickname",
+            label: "Surnom",
+            placeholder: "Surnom (optionnel)",
+            type: "text",
+        },
+        {
+            name: "bio",
+            label: "Biographie",
+            placeholder: "Biographie de l'artiste",
+            type: "textarea",
+        },
     ];
 
-    const { form, links, setLinks, selectedTags, setSelectedTags, onValid, onInvalid, success, loading, error } = useArtistForm({
+    const {
+        form,
+        links,
+        setLinks,
+        selectedTags,
+        setSelectedTags,
+        onValid,
+        onInvalid,
+        success,
+        loading,
+        error,
+    } = useArtistForm({
         ...artist,
         links: Array.isArray(artist?.links)
             ? artist.links.map((link) => {
-                // link est de type JsonValue, donc on doit vérifier
-                if (typeof link === "object" && link !== null) {
-                    const obj = link as Record<string, unknown>;
-                    return {
-                        name: typeof obj.name === "string" ? obj.name : "",
-                        url: typeof obj.url === "string" ? obj.url : "",
-                    };
-                }
-                return { name: "", url: "" };
-            })
+                  if (typeof link === "object" && link !== null) {
+                      const obj = link as Record<string, unknown>;
+                      return {
+                          name: typeof obj.name === "string" ? obj.name : "",
+                          url: typeof obj.url === "string" ? obj.url : "",
+                      };
+                  }
+                  return { name: "", url: "" };
+              })
             : [],
         tagIds: artist?.tagsJoin?.map((t) => t.tag.id) ?? [],
     });
@@ -47,44 +81,62 @@ export default function ArtistForm({ artist }: { artist: Artist & { tagsJoin: { 
     return (
         <CardWrapper
             cardTitle={artist ? "Modifier l'artiste" : "Créer un artiste"}
-            cardDescription={artist ? "Modifiez les informations de l'artiste." : "Créez un nouvel artiste en remplissant le formulaire."}
+            cardDescription={
+                artist
+                    ? "Modifiez les informations de l'artiste."
+                    : "Créez un nouvel artiste en remplissant le formulaire."
+            }
             maxWidth="max-w-7xl"
             className="px-4 mx-auto"
         >
             <FormProvider {...form}>
-                <form onSubmit={form.handleSubmit(onValid, onInvalid)} className="space-y-4">
-                    {fields.map(field => (
-                        <FormField key={field.name} control={form.control} name={field.name as keyof z.infer<
-                            typeof CreateArtistSchema
-                        >} render={({ field: hookField }) => (
-                            <FormItem>
-                                <FormLabel>{field.label}</FormLabel>
-                                <FormControl>
-                                    {field.type === "textarea" ? (
-                                        <div>
-                                            <textarea
+                <form
+                    onSubmit={form.handleSubmit(onValid, onInvalid)}
+                    className="space-y-4"
+                >
+                    {fields.map((field) => (
+                        <FormField
+                            key={field.name}
+                            control={form.control}
+                            name={
+                                field.name as keyof z.infer<
+                                    typeof CreateArtistSchema
+                                >
+                            }
+                            render={({ field: hookField }) => (
+                                <FormItem>
+                                    <FormLabel>{field.label}</FormLabel>
+                                    <FormControl>
+                                        {field.type === "textarea" ? (
+                                            <div>
+                                                <textarea
+                                                    {...hookField}
+                                                    rows={4}
+                                                    className="w-full max-h-96 h-24 min-h-12 border rounded p-2"
+                                                    placeholder={
+                                                        field.placeholder
+                                                    }
+                                                    disabled={loading}
+                                                />
+                                                <div className="text-xs text-muted-foreground mt-1">
+                                                    Petite biographie de
+                                                    l&#39;artiste (quelques
+                                                    lignes suffisent)
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <Input
                                                 {...hookField}
-                                                rows={4}
-                                                className="w-full max-h-96 h-24 min-h-12 border rounded p-2"
+                                                type={field.type}
                                                 placeholder={field.placeholder}
                                                 disabled={loading}
                                             />
-                                            <div className="text-xs text-muted-foreground mt-1">
-                                                Petite biographie de l&#39;artiste (quelques lignes suffisent)
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <Input
-                                            {...hookField}
-                                            type={field.type}
-                                            placeholder={field.placeholder}
-                                            disabled={loading}
-                                        />
-                                    )}
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )} />
+                                        )}
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                     ))}
 
                     <LinksField
@@ -94,15 +146,31 @@ export default function ArtistForm({ artist }: { artist: Artist & { tagsJoin: { 
                             copy[idx] = { ...copy[idx], ...partial };
                             setLinks(copy);
                         }}
-                        removeLink={idx => setLinks((links).filter((_: { name: string; url: string }, i: number) => i !== idx))}
-                        addLink={() => setLinks([...(links), { name: "", url: "" }])}
+                        removeLink={(idx) =>
+                            setLinks(
+                                links.filter(
+                                    (
+                                        _: { name: string; url: string },
+                                        i: number
+                                    ) => i !== idx
+                                )
+                            )
+                        }
+                        addLink={() =>
+                            setLinks([...links, { name: "", url: "" }])
+                        }
                         errors={form.formState.errors.links}
                         disabled={loading}
                     />
 
                     <ImageUploadField
                         value={form.getValues("image")}
-                        setValue={file => form.setValue("image", file, { shouldValidate: true, shouldDirty: true })}
+                        setValue={(file) =>
+                            form.setValue("image", file, {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                            })
+                        }
                         disabled={loading}
                         existingUrl={artist?.imgurl ?? undefined}
                     />
@@ -119,7 +187,13 @@ export default function ArtistForm({ artist }: { artist: Artist & { tagsJoin: { 
                     <FormSuccess message={success} />
 
                     <Button type="submit" className="w-full" disabled={loading}>
-                        {loading ? <Loader2 size={16} className="animate-spin" /> : artist ? "Modifier" : "Créer"}
+                        {loading ? (
+                            <Loader2 size={16} className="animate-spin" />
+                        ) : artist ? (
+                            "Modifier"
+                        ) : (
+                            "Créer"
+                        )}
                     </Button>
                 </form>
             </FormProvider>

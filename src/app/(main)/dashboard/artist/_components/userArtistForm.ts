@@ -41,13 +41,16 @@ export function useArtistForm(initialData?: Partial<ArtistFormValues>) {
 
                const response = await fetch("/api/artist", {
                     method: initialData?.id ? "PUT" : "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                         "Content-Type": "application/json"
+                    },
                     body: JSON.stringify({
                          ...values,
                          id: initialData?.id,
                          imgurl,
                          links: values.links,
                     }),
+                    cache: "no-store",
                });
 
                setLoading(false);

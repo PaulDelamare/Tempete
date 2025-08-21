@@ -17,7 +17,7 @@ export default function ImageUploadField({ value, setValue, disabled, existingUr
                name="image"
                render={({ field }) => (
                     <FormItem>
-                         <FormLabel>Image de profil (optionnelle)</FormLabel>
+                         <FormLabel>Image</FormLabel>
                          <div className="flex items-end gap-4">
                               {preview && (
                                    <div className="relative w-16 h-16 rounded-sm overflow-hidden">

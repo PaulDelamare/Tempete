@@ -16,7 +16,7 @@ import z from "zod";
 import { CreateAreaSchema } from "@/helpers/zod/area/create-area-schema";
 import ImageUploadField from "@/components/form/uploadFile";
 
-export default function ArtistForm({ area }: { area: Area }) {
+export default function AreaForm({ area }: { area: Area }) {
 
     const fields = [
         { name: "name", label: "Nom", placeholder: "Nom de la zone", type: "text" },
@@ -28,8 +28,9 @@ export default function ArtistForm({ area }: { area: Area }) {
 
     const { form, onValid, onInvalid, success, loading, error } = useAreaForm({
         ...area,
-        latitude: area.latitude?.toNumber() ?? null,
-        longitude: area.longitude?.toNumber() ?? null,
+        latitude: area.latitude?.toNumber() ?? 0,
+        longitude: area.longitude?.toNumber() ?? 0,
+        capacity: area.capacity ?? 0,
     });
 
     return (

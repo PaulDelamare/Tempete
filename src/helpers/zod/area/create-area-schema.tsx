@@ -15,14 +15,7 @@ export const AreaTypeEnum = z.enum([
 
 export const CreateAreaSchema = z.object({
     name: z.string().min(2, { message: "Nom trop court" }).max(100, { message: "Nom trop long" }),
-    imgurl: z
-        .string()
-        .regex(/^data:image\/(png|jpg|jpeg|webp);base64,.+/, {
-            message: "L’image doit être un base64 PNG/JPG/WEBP",
-        })
-        .optional()
-        .nullable(),
-    description: z.string().max(1000, { message: "Bio trop longue" }).optional().nullable(),
+    description: z.string().max(1000, { message: "Description trop longue" }).optional().nullable(),
     type: AreaTypeEnum,
     latitude: z
         .number()
@@ -50,21 +43,17 @@ export const CreateAreaSchema = z.object({
 
 export const AreaSchema = z.object({
     name: z.string().min(1),
-    nickname: z.string().nullable(),
-    links: z.array(
-        z.object({
-            name: z.string().min(1, "Nom du lien requis"),
-            url: z.url("URL invalide"),
-        })
-    ).optional(),
-    bio: z.string().nullable(),
-    tagIds: z.array(z.string().cuid()).optional(),
+    type: AreaTypeEnum,
+    description: z.string().nullable(),
     imgurl: z
         .string()
         .regex(/^data:image\/(png|jpg|jpeg|webp);base64,.+/, {
             message: "L’image doit être un base64 PNG/JPG/WEBP",
         })
         .nullable(),
+    latitude: z.number().nullable(),
+    longitude: z.number().nullable(),
+    capacity: z.number().int().positive().nullable(),
 });
 
 export const AreaIdSchema = z.object({

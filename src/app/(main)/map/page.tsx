@@ -20,30 +20,29 @@ interface Area {
 async function getAreas(): Promise<Area[]> {
     try {
         const data = await prisma.area.findMany({
-            include: { 
-                events: { 
-                    include: { 
-                        artists: { 
-                            include: { 
-                                artist: { 
-                                    include: { 
-                                        tagsJoin: { 
-                                            include: { 
-                                                tag: true 
-                                            } 
-                                        } 
-                                    } 
-                                } 
-                            } 
-                        } 
-                    } 
-                }, 
-                products: true 
+            include: {
+                events: {
+                    include: {
+                        artists: {
+                            include: {
+                                artist: {
+                                    include: {
+                                        tagsJoin: {
+                                            include: {
+                                                tag: true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                products: true
             },
             orderBy: { created_at: "desc" },
         });
 
-        // Filtrer et transformer les données
         const areasWithCoords = data
             .filter((area: any) => area.latitude && area.longitude)
             .map((area: any) => ({
@@ -66,9 +65,6 @@ const MapPage = async () => {
 
     return (
         <div className="w-full h-screen flex flex-col">
-            <h1 className="text-2xl font-bold p-4">
-                Carte Tempête ({areas.length} area{areas.length > 1 ? 's' : ''})
-            </h1>
             <MapComponent areas={areas} />
         </div>
     );

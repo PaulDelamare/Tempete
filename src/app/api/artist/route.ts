@@ -30,16 +30,41 @@
  *             type: string
  */
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { ArtistSchema, MergedArtistPutSchema } from "@/helpers/zod/artist/create-artist-schema";
-import { createArtist, updateArtist } from "@/services/artist.service";
+import { createArtist, findAllArtists, updateArtist } from "@/services/artist.service";
 import { validateBody } from "@/lib/validation";
 import { handleApiError } from "@/lib/errors";
 
 
+/**
+ * @openapi
+ * /api/artist:
+ *   get:
+ *     summary: Récupère la liste des artistes
+ *     tags:
+ *       - Artist
+ *     responses:
+ *       200:
+ *         description: Liste des artistes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Artist'
+ *       500:
+ *         description: Erreur interne du serveur
+ */
 export async function GET() {
-    const artists = await prisma.artist.findMany();
-    return NextResponse.json(artists);
+    try {
+        const artists = await findAllArtists();
+
+        return NextResponse.json(artists, { status: 200 });
+
+    } catch (error) {
+
+        return handleApiError(error);
+    }
 }
 
 /**

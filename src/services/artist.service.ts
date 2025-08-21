@@ -2,6 +2,16 @@ import { prisma } from "@/lib/prisma";
 import { attachTagsToArtist, removeAllTagsFromArtist, updateTagsForArtist } from "./tag.service";
 import { CreateArtistApiSchemaType, MergedArtistPutSchemaType } from "@/helpers/zod/artist/create-artist-schema";
 
+
+/**
+ * Retrieves all artists from the database.
+ *
+ * @returns A promise that resolves to an array of artist objects.
+ */
+export async function findAllArtists() {
+     return prisma.artist.findMany();
+}
+
 /**
  * Creates a new artist in the database and optionally attaches tags to the artist.
  *

@@ -42,33 +42,32 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-import { Tag } from "@/generated/prisma";
-
-
-type Artist = {
-    id: string;
-    name: string;
-    nickname?: string | null;
-    bio?: string | null;
-    imgurl?: string | null;
-    links?: Record<string, string>[];
-    created_at: string;
-    modified_at: string;
-    tagsJoin: Tag[];
-};
+import { Artist, Tag } from "@/generated/prisma";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function ArtistPage() {
     const [modalOpen, setModalOpen] = useState(false);
-    const [artists, setArtists] = useState<Artist[]>([]);
-    const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
+    const [artists, setArtists] = useState<(Artist & {
+        tagsJoin: {
+            tag: Tag
+        }
+    })[]>([]);
+    const [selectedArtist, setSelectedArtist] = useState<(Artist & { tagsJoin: { tag: Tag } }) | null>(null);
 
     const [reload, setReload] = useState(0);
 
     const fetchArtists = async () => {
+
         const res = await fetch("http://localhost:3000/api/artist", {
             cache: "no-store",
         });
-        const data = await res.json();
+
+        const data = (await res.json()) as (Artist & {
+            tagsJoin: {
+                tag: Tag
+            }
+        })[];
+
         setArtists(data);
     };
 
@@ -84,9 +83,9 @@ export default function ArtistPage() {
             bio: null,
             imgurl: null,
             links: [],
-            created_at: new Date().toISOString(),
-            modified_at: new Date().toISOString(),
-            tagsJoin: [],
+            created_at: new Date(),
+            modified_at: new Date(),
+            tagsJoin: { tag: {} as Tag },
         });
         setModalOpen(true);
     };
@@ -111,7 +110,7 @@ export default function ArtistPage() {
         });
     }, [artists, filter]);
 
-    const artistConfigs: ColumnConfig<Artist>[] = [
+    const artistConfigs: ColumnConfig<(Artist & { tagsJoin: { tag: Tag } })>[] = [
         { key: "name", title: "Nom", sortable: true },
         {
             key: "nickname",
@@ -133,15 +132,40 @@ export default function ArtistPage() {
             key: "tagsJoin",
             title: "Tags",
             format: (val: unknown) => {
-                const tags = val as Tag[];
-                if (!tags || tags.length === 0) return <span>-</span>;
+                const tagsJoin = val as { tag: Tag }[];
+                if (!tagsJoin || tagsJoin.length === 0) return <span>-</span>;
+
+                const visibleTags = tagsJoin.slice(0, 3);
+                const hiddenCount = tagsJoin.length - visibleTags.length;
+
                 return (
                     <div className="flex flex-wrap gap-1">
-                        {tags.map((tag) => (
-                            <Badge key={tag.id} variant="outline">
-                                {tag.name}
+                        {visibleTags.map((tj) => (
+                            <Badge key={tj.tag.id} variant="outline">
+                                {tj.tag.name}
                             </Badge>
                         ))}
+
+                        {hiddenCount > 0 && (
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Badge variant="secondary" className="cursor-pointer">
+                                            +{hiddenCount}
+                                        </Badge>
+                                    </TooltipTrigger>
+                                    <TooltipContent className="max-w-xs">
+                                        <div className="flex flex-wrap gap-1">
+                                            {tagsJoin.slice(3).map((tj) => (
+                                                <Badge key={tj.tag.id} variant="outline">
+                                                    {tj.tag.name}
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        )}
                     </div>
                 );
             },
@@ -220,7 +244,7 @@ export default function ArtistPage() {
         },
     ];
 
-    const artistColumns = buildColumnsFromConfig<Artist>(artistConfigs);
+    const artistColumns = buildColumnsFromConfig<(Artist & { tagsJoin: { tag: Tag } })>(artistConfigs);
 
     const table = useDataTableInstance({
         data: filteredData,
@@ -281,18 +305,7 @@ export default function ArtistPage() {
                             links: selectedArtist.links ?? [],
                             created_at: new Date(selectedArtist.created_at),
                             modified_at: new Date(selectedArtist.modified_at),
-                            tagsJoin: selectedArtist.tagsJoin
-                                ? selectedArtist.tagsJoin.map((tag) => ({
-                                      tag: {
-                                          ...tag,
-                                          created_at: new Date(tag.created_at),
-                                          modified_at: new Date(
-                                              tag.modified_at
-                                          ),
-                                          description: tag.description ?? null,
-                                      },
-                                  }))
-                                : [],
+                            tagsJoin: Array.isArray(selectedArtist.tagsJoin) ? selectedArtist.tagsJoin : [],
                         }}
                     />
                 )}

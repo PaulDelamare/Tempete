@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+"use client";
+
+import { useEffect } from "react";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateArtistSchema } from "@/helpers/zod/artist/create-artist-schema";
@@ -10,24 +12,27 @@ import { z } from "zod";
 type ArtistFormValues = z.infer<typeof CreateArtistSchema> & { id?: string };
 
 export function useArtistForm(initialData?: Partial<ArtistFormValues>) {
-     const { success, loading, error, setError, setLoading, setSuccess, resetState } = useAuthState();
+     const { success, loading, error, setError, setLoading, setSuccess, resetState } =
+          useAuthState();
 
      const form: UseFormReturn<ArtistFormValues> = useForm<ArtistFormValues>({
           resolver: zodResolver(CreateArtistSchema),
-          defaultValues: initialData,
+          defaultValues: {
+               ...initialData,
+               tagIds: initialData?.tagIds ?? [],
+               links: initialData?.links ?? [],
+          },
           mode: "onSubmit",
      });
 
-     const [links, setLinks] = useState<NonNullable<ArtistFormValues["links"]>>(initialData?.links ?? []);
-     const [selectedTags, setSelectedTags] = useState<NonNullable<ArtistFormValues["tagIds"]>>(initialData?.tagIds ?? []);
-
      useEffect(() => {
-          form.setValue("links", links, { shouldValidate: true, shouldDirty: true });
-     }, [links, form]);
-
-     useEffect(() => {
-          form.setValue("tagIds", selectedTags, { shouldValidate: true, shouldDirty: true });
-     }, [selectedTags, form]);
+          if (!initialData) return;
+          form.reset({
+               ...initialData,
+               tagIds: initialData.tagIds ?? [],
+               links: initialData.links ?? [],
+          });
+     }, [initialData?.id, initialData?.name]);
 
      const onValid = async (values: ArtistFormValues) => {
           resetState();
@@ -39,24 +44,35 @@ export function useArtistForm(initialData?: Partial<ArtistFormValues>) {
                     imgurl = await convertImageToBase64(values.image);
                }
 
+               const payload = {
+                    ...values,
+                    id: initialData?.id,
+                    imgurl,
+                    links: values.links ?? [],
+                    tagIds: values.tagIds ?? [],
+               };
+
                const response = await fetch("/api/artist", {
                     method: initialData?.id ? "PUT" : "POST",
-                    headers: {
-                         "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                         ...values,
-                         id: initialData?.id,
-                         imgurl,
-                         links: values.links,
-                    }),
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
                     cache: "no-store",
                });
 
                setLoading(false);
 
                if (!response.ok) {
-                    const data: { message?: string } = await response.json().catch(() => ({}));
+                    const data: { message?: string; details?: unknown } = await response.json().catch(() => ({}));
+                    if (data?.details && Array.isArray(data.details)) {
+                         (data.details as { path: string | string[]; message?: string }[]).forEach(d => {
+                              let path: string;
+                              if (typeof d.path === "string") path = d.path;
+                              else if (Array.isArray(d.path)) path = d.path.join(".");
+                              else path = "root";
+
+                              form.setError(path as keyof ArtistFormValues, { type: "server", message: d.message ?? "Erreur" });
+                         });
+                    }
                     setError(data?.message || "Erreur lors de l'enregistrement.");
                     return;
                }
@@ -75,5 +91,12 @@ export function useArtistForm(initialData?: Partial<ArtistFormValues>) {
           setError("Validation invalide : corrige les champs en rouge.");
      };
 
-     return { form, links, setLinks, selectedTags, setSelectedTags, onValid, onInvalid, success, loading, error };
+     return {
+          form,
+          onValid,
+          onInvalid,
+          success,
+          loading,
+          error,
+     };
 }

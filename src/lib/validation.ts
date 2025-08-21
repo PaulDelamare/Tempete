@@ -1,12 +1,18 @@
 import { ZodType } from "zod";
-import { ApiError } from "./errors";
+import { ApiError, throwError } from "./errors";
 
 export function validateBody<T>(schema: ZodType<T>, body: unknown): T {
      const parsed = schema.safeParse(body);
 
      if (!parsed.success) {
-          console.error("Validation error:", parsed.error);
-          throw new ApiError(400, "Validation échouée", parsed.error);
+          const formatted = parsed.error.issues.map(err => ({
+               path: err.path.join("."),
+               message: err.message
+          }));
+
+          console.warn("Validation error:", formatted);
+
+          throwError(400, "Validation échouée", formatted);
      }
-     return parsed.data;
+     return parsed.data as T;
 }

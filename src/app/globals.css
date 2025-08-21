@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "maplibre-gl/dist/maplibre-gl.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -122,11 +123,55 @@
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
+.mapboxgl-marker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform;
+  opacity: 1;
+  transition: opacity .2s;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+  
+  /* Réinitialiser le curseur par défaut pour la carte */
+  .maplibregl-map {
+    cursor: default !important;
+  }
+  
+  .maplibregl-canvas {
+    cursor: default !important;
+  }
+
   body {
     @apply bg-background text-foreground;
+  }
+  
+  .maplibregl-popup-content {
+    padding: 15px 0 !important;
+  }
+
+  /* Style pour le bouton de fermeture de la popup */
+  .maplibregl-popup-close-button {
+    background: transparent !important;
+    border: none !important;
+    font-size: 18px !important;
+    font-weight: bold !important;
+    color: #6b7280 !important;
+    padding: 8px !important;
+    width: 30px !important;
+    height: 30px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: color 0.2s ease !important;
+  }
+
+  .maplibregl-popup-close-button:hover {
+    color: #374151 !important;
   }
 }

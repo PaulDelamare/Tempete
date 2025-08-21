@@ -11,7 +11,18 @@ function toDecimal(v: unknown) {
 export async function GET() {
   try {
     const areas = await prisma.area.findMany({
-      include: { events: true, products: true },
+      include: {
+        events: {
+          include: {
+            artists: {
+              include: {
+                artist: { include: { tagsJoin: { include: { tag: true } } } },
+              },
+            },
+          },
+        },
+        products: true,
+      },
       orderBy: { created_at: "desc" },
     });
     return NextResponse.json(areas);

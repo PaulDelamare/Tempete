@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { idSchema } from "../id-schema";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -19,16 +20,11 @@ export const CreateAreaSchema = z.object({
     name: z.string().min(2).max(100),
     description: z.string().max(1000).optional().nullable(),
     type: AreaTypeEnum,
-    latitude: z.regex(decimalRegex, "Latitude invalide, 20 décimales max"),
-
-    longitude: z.regex(decimalRegex, "Longitude invalide, 20 décimales max"),
-
+    latitude: z.string().regex(decimalRegex, "Latitude invalide, 20 décimales max"),
+    longitude: z.string().regex(decimalRegex, "Longitude invalide, 20 décimales max"),
     capacity: z
         .string({ error: "Capacité est requise" })
-        .regex(/^\d+$/, "Capacité doit être un entier positif")
-        .optional()
-        .nullable(),
-
+        .regex(/^[1-9]\d*$/, "Capacité doit être un entier positif supérieur à 0"),
     image: z
         .any()
         .optional()
@@ -42,29 +38,28 @@ export const CreateAreaSchema = z.object({
             (v) => !v || ACCEPTED_IMAGE_TYPES.includes(v.type),
             "Formats autorisés : jpg, png, webp"
         ),
-
 });
 
 export const AreaSchema = z.object({
-    name: z.string().min(1),
+    name: z.string().min(2).max(100),
+    description: z.string().max(1000).optional().nullable(),
     type: AreaTypeEnum,
-    description: z.string().nullable(),
+    latitude: z.string().regex(decimalRegex, "Latitude invalide, 20 décimales max"),
+    longitude: z.string().regex(decimalRegex, "Longitude invalide, 20 décimales max"),
+    capacity: z
+        .string({ error: "Capacité est requise" })
+        .regex(/^[1-9]\d*$/, "Capacité doit être un entier positif supérieur à 0"),
     imgurl: z
         .string()
         .regex(/^data:image\/(png|jpg|jpeg|webp);base64,.+/, {
             message: "L’image doit être un base64 PNG/JPG/WEBP",
         })
         .nullable(),
-    latitude: z.number().nullable(),
-    longitude: z.number().nullable(),
-    capacity: z.number().int().positive().nullable(),
 });
 
-export const AreaIdSchema = z.object({
-    id: z.cuid({ message: "Id doit être un CUID valide" }),
-});
 
-export const MergedAreaPutSchema = AreaIdSchema.extend(AreaSchema.shape);
+
+export const MergedAreaPutSchema = idSchema.extend(AreaSchema.shape);
 
 export type CreateAreaApiSchemaType = z.infer<typeof AreaSchema>;
 

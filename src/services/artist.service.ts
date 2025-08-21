@@ -35,19 +35,15 @@ export async function findAllArtists() {
  * @returns The newly created artist object.
  */
 export async function createArtist(data: CreateArtistApiSchemaType) {
+     const { tagIds, ...artistData } = data;
 
-     return prisma.$transaction(async (tx) => {
-          const { tagIds, ...artistData } = data;
+     const createdArtist = await prisma.artist.create({ data: artistData });
 
-          const createdArtist = await tx.artist.create({ data: artistData });
+     if (tagIds?.length) {
+          await attachTagsToArtist(createdArtist.id, tagIds);
+     }
 
-          if (tagIds?.length) {
-
-               await attachTagsToArtist(createdArtist.id, tagIds);
-          }
-
-          return createdArtist;
-     });
+     return createdArtist;
 }
 
 /**

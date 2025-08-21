@@ -9,7 +9,15 @@ import { CreateArtistApiSchemaType, MergedArtistPutSchemaType } from "@/helpers/
  * @returns A promise that resolves to an array of artist objects.
  */
 export async function findAllArtists() {
-     return prisma.artist.findMany();
+     return prisma.artist.findMany({
+          include: {
+               tagsJoin: {
+                    include: {
+                         tag: true
+                    }
+               }
+          }
+     });
 }
 
 /**

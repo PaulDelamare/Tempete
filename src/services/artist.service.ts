@@ -15,8 +15,13 @@ export async function findAllArtists() {
                     include: {
                          tag: true
                     }
-               }
-          }
+               },
+               events: true
+          },
+
+          orderBy: {
+               name: "asc",
+          },
      });
 }
 

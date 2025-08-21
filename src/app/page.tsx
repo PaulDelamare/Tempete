@@ -35,7 +35,7 @@ export default function Home() {
   useEffect(() => {
     const fetchArtists = async () => {
       try {
-        const response = await fetch("/api/artists");
+        const response = await fetch("/api/artist");
         if (response.ok) {
           const data = await response.json();
           console.log("Artistes récupérés:", data);

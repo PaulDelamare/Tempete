@@ -63,8 +63,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({ areas }) => {
             setSelectedArea(null);
         }
         setMarkerClicked(false);
-
-        console.log("Coordonnées cliquées:", { longitude: event.lngLat.lng, latitude: event.lngLat.lat });
     };
 
     return (

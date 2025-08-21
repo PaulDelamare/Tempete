@@ -4,23 +4,22 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export default function Navigation() {
+export default function MapNavigation() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
   const navItems = [
     { name: "Accueil", href: "/" },
     { name: "Espaces", href: "/areas" },
-    { name: "Événements", href: "/event" },
     { name: "Carte", href: "/map" },
   ];
 
   return (
-    <nav className="fixed top-0 right-0 z-50 p-4">
+    <nav className="relative z-50">
       {/* Bouton hamburger */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative z-50 p-2 text-white hover:text-blue-400 transition-colors"
+        className="relative z-50 p-2 text-black hover:text-blue-400 transition-colors"
       >
         <div className="w-6 h-6 flex flex-col justify-center items-center">
           <span

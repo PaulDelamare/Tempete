@@ -12,7 +12,6 @@ import {
   SquareArrowUpRight,
   LayoutDashboard,
   ChartBar,
-  Banknote,
   Gauge,
   GraduationCap,
   type LucideIcon,

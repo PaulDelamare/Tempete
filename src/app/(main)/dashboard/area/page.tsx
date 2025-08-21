@@ -87,7 +87,7 @@ export default function AreaPage() {
     };
 
     const handleDelete = async (areaId: string) => {
-        await fetch(`http://localhost:3000/api/area/${areaId}`, {
+        await fetch(`http://localhost:3000/api/areas/${areaId}`, {
             method: "DELETE",
         });
         setReload((prev) => prev + 1);

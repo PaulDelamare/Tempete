@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { handleApiError } from '@/lib/errors';
-import { ArtistIdSchema } from '@/helpers/zod/artist/create-artist-schema';
 import { validateBody } from '@/lib/validation';
 import { deleteArtist } from '@/services/artist.service';
+import { idSchema } from '@/helpers/zod/id-schema';
 
 /**
  * @openapi
@@ -53,11 +53,12 @@ import { deleteArtist } from '@/services/artist.service';
  */
 export async function DELETE(
      request: Request,
-     { params }: { params: { idArtist: string } }
+     { params }: { params: { id: string } }
 ) {
      try {
+          const paramsData = await Promise.resolve(params);
 
-          const validatedData = validateBody(ArtistIdSchema, params);
+          const validatedData = validateBody(idSchema, paramsData);
 
           await deleteArtist(validatedData.id);
 

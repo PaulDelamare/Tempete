@@ -1,12 +1,6 @@
 import React from "react";
 import { Marker } from "@vis.gl/react-maplibre";
-import {
-    Music,
-    UtensilsCrossed,
-    ShoppingBag,
-    Armchair,
-    Settings
-} from "lucide-react";
+import { getAreaIcon, getAreaColor } from "@/lib/utils/areaUtils";
 
 interface Area {
     id: string;
@@ -28,43 +22,17 @@ interface AreaMarkerProps {
     onClick: (area: Area) => void;
 }
 
-const getAreaIcon = (type: string) => {
-    const iconProps = { size: 16, className: "text-white" };
 
-    switch (type) {
-        case 'stage':
-            return <Music {...iconProps} />;
-        case 'food':
-            return <UtensilsCrossed {...iconProps} />;
-        case 'merch':
-            return <ShoppingBag {...iconProps} />;
-        case 'chill':
-            return <Armchair {...iconProps} />;
-        default:
-            return <Settings {...iconProps} />;
-    }
-};
-
-const getAreaColor = (type: string) => {
-    switch (type) {
-        case 'stage':
-            return 'bg-purple-500 hover:bg-purple-600';
-        case 'food':
-            return 'bg-orange-500 hover:bg-orange-600';
-        case 'merch':
-            return 'bg-blue-500 hover:bg-blue-600';
-        case 'chill':
-            return 'bg-green-500 hover:bg-green-600';
-        default:
-            return 'bg-gray-500 hover:bg-gray-600';
-    }
-};
 
 export const AreaMarker: React.FC<AreaMarkerProps> = ({ 
     area, 
     currentZoom, 
     onClick 
 }) => {
+    if (area.longitude === null || area.latitude === null) {
+        return null;
+    }
+
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         onClick(area);

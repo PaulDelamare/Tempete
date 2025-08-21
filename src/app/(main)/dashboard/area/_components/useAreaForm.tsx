@@ -5,7 +5,6 @@ import { logRHFErrors, debugZodParse } from "@/helpers/form/form";
 import { convertImageToBase64 } from "@/helpers/file/convertImageToBase64";
 import { useAuthState } from "@/hooks/useAuthState";
 import { z } from "zod";
-import { Prisma } from "@/generated/prisma";
 
 type AreaFormValues = z.infer<typeof CreateAreaSchema> & { id?: string };
 
@@ -39,21 +38,19 @@ export function useAreaForm(initialData?: Partial<AreaFormValues>) {
             const payload = {
                 ...values,
                 latitude: values.latitude
-                    ? new Prisma.Decimal(String(values.latitude))
-                    : null,
+                    ? values.latitude
+                    : "0",
                 longitude: values.longitude
-                    ? new Prisma.Decimal(String(values.longitude))
-                    : null,
+                    ? values.longitude
+                    : "0",
                 imgurl,
                 capacity: values.capacity
-                    ? parseInt(String(values.capacity), 10)
-                    : null,
+                    ? values.capacity
+                    : "0",
                 id: initialData?.id ?? values.id,
             };
 
-            console.log(typeof payload.latitude);
-
-            const response = await fetch("/api/area", {
+            const response = await fetch("/api/areas", {
                 method: initialData?.id ? "PUT" : "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),

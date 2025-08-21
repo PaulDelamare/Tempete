@@ -77,8 +77,8 @@ export default function AreaPage() {
             description: "",
             imgurl: null,
             type: AreaType.stage,
-            latitude: null,
-            longitude: null,
+            latitude: "",
+            longitude: "",
             capacity: null,
             created_at: new Date(),
             modified_at: new Date(),
@@ -244,6 +244,7 @@ export default function AreaPage() {
                                         <SelectItem value="all">
                                             Tous
                                         </SelectItem>
+
                                         {uniqueTypes.map((type) => (
                                             <SelectItem key={type} value={type}>
                                                 {type}

@@ -28,6 +28,7 @@ export const CreateAreaSchema = z.object({
         .regex(/^\d+$/, "Capacité doit être un entier positif")
         .optional()
         .nullable(),
+
     image: z
         .any()
         .optional()
@@ -41,6 +42,7 @@ export const CreateAreaSchema = z.object({
             (v) => !v || ACCEPTED_IMAGE_TYPES.includes(v.type),
             "Formats autorisés : jpg, png, webp"
         ),
+
 });
 
 export const AreaSchema = z.object({
@@ -69,3 +71,4 @@ export type CreateAreaApiSchemaType = z.infer<typeof AreaSchema>;
 export type MergedAreaPutSchemaType = z.infer<typeof MergedAreaPutSchema>;
 
 export type CreateAreaSchemaType = z.infer<typeof CreateAreaSchema>;
+

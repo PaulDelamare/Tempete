@@ -65,6 +65,7 @@ export function useAreaForm(initialData?: Partial<AreaFormValues>) {
                 const data: { message?: string } = await response
                     .json()
                     .catch(() => ({}));
+
                 setError(data?.message || "Erreur lors de l'enregistrement.");
                 return;
             }

@@ -44,6 +44,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Tag } from "@/generated/prisma";
 
+
 type Artist = {
     id: string;
     name: string;

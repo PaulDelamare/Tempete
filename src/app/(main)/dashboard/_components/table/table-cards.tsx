@@ -1,11 +1,10 @@
 "use client";
 
 import React from "react";
-import { Download, EllipsisVertical } from "lucide-react";
+import { EllipsisVertical } from "lucide-react";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
-import { Button } from "@/components/ui/button";
 import {
     Card,
     CardHeader,
@@ -19,6 +18,10 @@ import { Badge } from "@/components/ui/badge";
 import { buildColumnsFromConfig, ColumnConfig } from "./columns";
 import { recentLeadSchema } from "./schema";
 import z from "zod";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {useMemo, useState} from "react";
+import {Input} from "@/components/ui/input";
+
 
 type Lead = z.infer<typeof recentLeadSchema>;
 
@@ -88,12 +91,31 @@ export function TableCards({
     description,
     actions,
 }: TableCardsProps) {
-    const table = useDataTableInstance({
-        data,
-        columns,
-        getRowId: (row) => String(row.id),
-    });
 
+
+    const [filter, setFilter] = useState("");
+    const [typeFilter, setTypeFilter] = useState<string>("");
+    const uniqueTypes = useMemo(() => {
+        return Array.from(new Set(data.map((row) => row.type))).filter(Boolean);
+    }, [data]);
+    const filteredData = useMemo(() => {
+        return data.filter((row) => {
+            const value = filter.toLowerCase();
+            const matchesText =
+                row.id.toString().toLowerCase().includes(value) ||
+                row.name?.toLowerCase().includes(value);
+
+            const matchesType = typeFilter && typeFilter !== "all" ? row.type === typeFilter : true;
+
+            return matchesText && matchesType;
+        });
+    }, [data, filter, typeFilter]);
+
+    const table = useDataTableInstance({
+        data: filteredData,
+        columns: columns,
+        getRowId: (row) => row.id.toString(),
+    });
     return (
         <div className="grid grid-cols-1 gap-4 *:data-[slot=card]:shadow-xs">
             <Card>
@@ -108,13 +130,25 @@ export function TableCards({
 
                         <CardAction>
                             <div className="flex items-center gap-2">
+                                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                                    <SelectTrigger className="sm:w-48">
+                                        <SelectValue placeholder="Filtrer par type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">Tous</SelectItem>
+                                        {uniqueTypes.map((type) => (
+                                            <SelectItem key={type} value={type}>
+                                                {type}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <Input
+                                    placeholder="Rechercher..."
+                                    value={filter}
+                                    onChange={(e) => setFilter(e.target.value)}
+                                />
                                 <DataTableViewOptions table={table} />
-                                <Button variant="outline" size="sm">
-                                    <Download />
-                                    <span className="hidden lg:inline">
-                                        Export
-                                    </span>
-                                </Button>
                                 {actions}
                             </div>
                         </CardAction>

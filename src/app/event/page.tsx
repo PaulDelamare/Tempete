@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Navigation from "@/components/Navigation";
+import { Star } from "lucide-react";
+import { FavoritesPopup } from "@/components/ui/favorites-popup";
+import { useFavorites } from "@/hooks/useFavorites";
 
 interface Artist {
   id: string;
@@ -40,6 +43,9 @@ interface Event {
 export default function EventPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const [popupEvent, setPopupEvent] = useState<Event | null>(null);
+  const { addToFavorites, removeFromFavorites, isFavorite, getFavoriteEmail } =
+    useFavorites();
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -117,6 +123,45 @@ export default function EventPage() {
         return "Caché";
       default:
         return status;
+    }
+  };
+
+  const handleFavoriteClick = (event: Event) => {
+    if (isFavorite(event.id)) {
+      // Si déjà en favori, le retirer
+      removeFromFavorites(event.id);
+    } else {
+      // Si pas en favori, l'ajouter immédiatement et ouvrir la popup
+      addToFavorites(event.id);
+      setPopupEvent(event);
+    }
+  };
+
+  const handleAddMailAlert = async (email: string) => {
+    if (popupEvent) {
+      try {
+        const response = await fetch("/api/mail-alerts", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            eventId: popupEvent.id,
+          }),
+        });
+
+        if (response.ok) {
+          console.log("Alerte mail créée avec succès");
+          // Mettre à jour le favori avec l'email
+          addToFavorites(popupEvent.id, email);
+        } else {
+          console.error("Erreur lors de la création de l'alerte mail");
+        }
+      } catch (error) {
+        console.error("Erreur lors de la création de l'alerte mail:", error);
+      }
+      setPopupEvent(null);
     }
   };
 
@@ -215,6 +260,20 @@ export default function EventPage() {
                         <div className="absolute inset-0 rounded-lg blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-blue-500/20 to-cyan-500/20" />
 
                         <div className="relative bg-black/80 border border-blue-400/40 rounded-lg p-6 h-full hover:border-blue-400 transition-colors duration-300 flex flex-col">
+                          {/* Bouton favoris */}
+                          <button
+                            onClick={() => handleFavoriteClick(event)}
+                            className="absolute top-4 right-4 z-10 p-2 bg-black/50 rounded-full hover:bg-black/70 transition-colors"
+                          >
+                            <Star
+                              className={`w-5 h-5 transition-colors ${
+                                isFavorite(event.id)
+                                  ? "text-yellow-400 fill-current"
+                                  : "text-gray-400 hover:text-yellow-400"
+                              }`}
+                            />
+                          </button>
+
                           {/* Image de l'area */}
                           <div className="w-full h-64 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
                             {event.area?.imgurl ? (
@@ -314,6 +373,14 @@ export default function EventPage() {
           )}
         </div>
       </div>
+
+      {/* Popup des favoris */}
+      <FavoritesPopup
+        isOpen={!!popupEvent}
+        onClose={() => setPopupEvent(null)}
+        eventName={popupEvent?.name || ""}
+        onConfirm={handleAddMailAlert}
+      />
     </div>
   );
 }

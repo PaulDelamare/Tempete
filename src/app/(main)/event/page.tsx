@@ -185,7 +185,6 @@ export default function EventPage() {
         });
 
         if (response.ok) {
-
           addToFavorites(popupEvent.id, email);
         } else {
           console.error("Erreur lors de la création de l'alerte mail");
@@ -329,11 +328,21 @@ export default function EventPage() {
                         {/* Glow */}
                         <div className="absolute inset-0 rounded-lg blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-blue-500/20 to-cyan-500/20" />
 
-                        <div className="relative bg-black/80 border border-blue-400/40 rounded-lg p-6 h-full hover:border-blue-400 transition-colors duration-300 flex flex-col">
+                        <div className="relative bg-black/80 border border-blue-400/40 rounded-lg p-6 h-full hover:border-blue-400 transition-colors duration-300 flex flex-col cursor-pointer">
+                          {/* Lien vers la page de détail */}
+                          <a
+                            href={`/event/${event.id}`}
+                            className="absolute inset-0 z-0"
+                            aria-label={`Voir les détails de ${event.name}`}
+                          />
                           {/* Bouton favoris */}
                           <button
-                            onClick={() => handleFavoriteClick(event)}
-                            className="absolute top-4 right-4 z-10 p-2 bg-black/50 rounded-full hover:bg-black/70 transition-colors"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleFavoriteClick(event);
+                            }}
+                            className="absolute top-4 right-4 z-20 p-2 bg-black/50 rounded-full hover:bg-black/70 transition-colors"
                           >
                             <Star
                               className={`w-5 h-5 transition-colors ${
@@ -427,11 +436,16 @@ export default function EventPage() {
                             >
                               {getStatusText(event.status)}
                             </span>
-                            {event.capacity && (
-                              <span className="text-xs opacity-70">
-                                Cap: {event.capacity}
+                            <div className="flex items-center gap-2">
+                              {event.capacity && (
+                                <span className="text-xs opacity-70">
+                                  Cap: {event.capacity}
+                                </span>
+                              )}
+                              <span className="text-xs text-blue-400 opacity-70 group-hover:opacity-100 transition-opacity">
+                                👁️ Voir détails
                               </span>
-                            )}
+                            </div>
                           </div>
                         </div>
                       </div>

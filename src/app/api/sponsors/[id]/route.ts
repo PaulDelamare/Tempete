@@ -1,41 +1,81 @@
 import { NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { handleError } from "@/lib/utils/api-error"
+import { deleteSponsor, findSponsorOrThrow } from "@/services/sponsor.service"
+import { handleApiError } from "@/lib/errors"
 
 type Params = { params: { id: string } }
 
+/**
+ * @openapi
+ * /api/sponsor/{id}:
+ *   get:
+ *     summary: Récupère un sponsor par son ID
+ *     tags:
+ *       - Sponsor
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sponsor trouvé
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Sponsor'
+ *       404:
+ *         description: Sponsor non trouvé
+ *       500:
+ *         description: Erreur interne du serveur
+ */
 export async function GET(_req: Request, { params }: Params) {
     try {
-        const sponsor = await prisma.sponsor.findUnique({ where: { id: params.id } })
-        if (!sponsor) return NextResponse.json({ error: "Sponsor not found" }, { status: 404 })
-        return NextResponse.json(sponsor)
+        const paramsData = await Promise.resolve(params);
+
+        const sponsor = await findSponsorOrThrow(paramsData.id);
+
+        return NextResponse.json(sponsor, { status: 200 })
     } catch (error) {
-        return handleError(error, "GET /api/sponsors/[id]")
+        return handleApiError(error);
     }
 }
 
-export async function PUT(req: Request, { params }: Params) {
-    try {
-        const body = await req.json()
-        const sponsor = await prisma.sponsor.update({
-            where: { id: params.id },
-            data: {
-                name: body.name ?? undefined,
-                imgurl: body.imgurl ?? undefined,
-                website_url: body.website_url ?? undefined,
-            },
-        })
-        return NextResponse.json(sponsor)
-    } catch (error) {
-        return handleError(error, "PUT /api/sponsors/[id]")
-    }
-}
-
+/**
+ * @openapi
+ * /api/sponsor/{id}:
+ *   delete:
+ *     summary: Supprime un sponsor par son ID
+ *     tags:
+ *       - Sponsor
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sponsor supprimé avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *       404:
+ *         description: Sponsor non trouvé
+ *       500:
+ *         description: Erreur interne du serveur
+ */
 export async function DELETE(_req: Request, { params }: Params) {
     try {
-        await prisma.sponsor.delete({ where: { id: params.id } })
+        const paramsData = await Promise.resolve(params);
+
+        await deleteSponsor(paramsData.id);
         return NextResponse.json({ success: true })
     } catch (error) {
-        return handleError(error, "DELETE /api/sponsors/[id]")
+        return handleApiError(error);
     }
 }

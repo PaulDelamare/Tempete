@@ -185,8 +185,7 @@ export default function EventPage() {
         });
 
         if (response.ok) {
-          console.log("Alerte mail créée avec succès");
-          // Mettre à jour le favori avec l'email
+
           addToFavorites(popupEvent.id, email);
         } else {
           console.error("Erreur lors de la création de l'alerte mail");

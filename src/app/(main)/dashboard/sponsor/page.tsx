@@ -46,7 +46,9 @@ import SponsorForm from "@/app/(main)/dashboard/sponsor/_components/SponsorForm"
 export default function SponsorPage() {
     const [modalOpen, setModalOpen] = useState(false);
     const [sponsors, setSponsors] = useState<Sponsor[]>([]);
-    const [selectedSponsor, setSelectedSponsor] = useState<Sponsor | null>(null);
+    const [selectedSponsor, setSelectedSponsor] = useState<Sponsor | null>(
+        null
+    );
 
     const [reload, setReload] = useState(0);
 
@@ -66,14 +68,16 @@ export default function SponsorPage() {
         setSelectedSponsor({
             id: "",
             name: "",
-            imgurl: "",
-            website_url: "",
+            imgurl: null,
+            website_url: null,
+            created_at: new Date(),
+            modified_at: new Date(),
         });
         setModalOpen(true);
     };
 
-    const handleDelete = async (areaId: string) => {
-        await fetch(`http://localhost:3000/api/sponsors/${areaId}`, {
+    const handleDelete = async (sponsorId: string) => {
+        await fetch(`http://localhost:3000/api/sponsors/${sponsorId}`, {
             method: "DELETE",
         });
         setReload((prev) => prev + 1);
@@ -100,7 +104,8 @@ export default function SponsorPage() {
                 const url = String(val ?? "");
                 if (!url) return null;
 
-                const displayText = url.length > 50 ? url.slice(0, 50) + "..." : url;
+                const displayText =
+                    url.length > 50 ? url.slice(0, 50) + "..." : url;
 
                 return (
                     <a
@@ -129,7 +134,7 @@ export default function SponsorPage() {
         {
             id: "actions",
             title: "Actions",
-            render: (area) => {
+            render: (sponsor) => {
                 return (
                     <DropdownMenu>
                         <DropdownMenuTrigger>
@@ -140,7 +145,7 @@ export default function SponsorPage() {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                                 onClick={() => {
-                                    setSelectedSponsor(area);
+                                    setSelectedSponsor(sponsor);
                                     setModalOpen(true);
                                 }}
                             >
@@ -160,8 +165,9 @@ export default function SponsorPage() {
                                         </AlertDialogTitle>
                                         <AlertDialogDescription>
                                             Cette action est irréversible. Le
-                                            sponsor <strong>{area.name}</strong>{" "}
-                                            sera définitivement supprimée.
+                                            sponsor{" "}
+                                            <strong>{sponsor.name}</strong> sera
+                                            définitivement supprimée.
                                         </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
@@ -171,7 +177,7 @@ export default function SponsorPage() {
                                         <AlertDialogAction
                                             className="bg-red-600 hover:bg-red-700"
                                             onClick={() =>
-                                                handleDelete(area.id)
+                                                handleDelete(sponsor.id)
                                             }
                                         >
                                             Supprimer

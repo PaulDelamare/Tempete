@@ -15,6 +15,7 @@ import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { CreateTagSchema } from "@/helpers/zod/tag/create-tag-schema";
 import z from "zod";
+import CardWrapper from "@/components/auth/card-wrapper";
 
 export type TagFormValues = z.infer<typeof CreateTagSchema> & { id?: string };
 
@@ -72,65 +73,76 @@ export default function TagForm({ tag, onSave }: TagFormProps) {
     };
 
     return (
-        <FormProvider {...form}>
-            <form
-                onSubmit={form.handleSubmit(onValid)}
-                className="flex flex-col gap-4 pt-8"
-            >
-                <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Nom</FormLabel>
-                            <FormControl>
-                                <Input
-                                    {...field}
-                                    placeholder="Nom du tag"
-                                    disabled={loading}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+        <CardWrapper
+            cardTitle={tag ? "Modifier le tag" : "Ajouter un tag"}
+            cardDescription={
+                tag
+                    ? "Modifiez les informations du tag."
+                    : "Créez un nouveau sponsor en remplissant le formulaire."
+            }
+            maxWidth="max-w-7xl"
+            className="px-4 mx-auto"
+        >
+            <FormProvider {...form}>
+                <form
+                    onSubmit={form.handleSubmit(onValid)}
+                    className="flex flex-col gap-4 pt-8"
+                >
+                    <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Nom</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        {...field}
+                                        placeholder="Nom du tag"
+                                        disabled={loading}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
 
-                <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Description</FormLabel>
-                            <FormControl>
-                                <textarea
-                                    {...field}
-                                    value={field.value ?? ""}
-                                    rows={4}
-                                    className="w-full border rounded p-2"
-                                    placeholder="Description du tag (optionnel)"
-                                    disabled={loading}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                    <FormField
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Description</FormLabel>
+                                <FormControl>
+                                    <textarea
+                                        {...field}
+                                        value={field.value ?? ""}
+                                        rows={4}
+                                        className="w-full border rounded p-2"
+                                        placeholder="Description du tag (optionnel)"
+                                        disabled={loading}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
 
-                {error && <div className="text-red-600 text-sm">{error}</div>}
-                {success && (
-                    <div className="text-green-600 text-sm">{success}</div>
-                )}
-
-                <Button type="submit" disabled={loading}>
-                    {loading ? (
-                        <Loader2 className="animate-spin mr-2" size={16} />
-                    ) : tag?.id ? (
-                        "Modifier"
-                    ) : (
-                        "Créer"
+                    {error && <div className="text-red-600 text-sm">{error}</div>}
+                    {success && (
+                        <div className="text-green-600 text-sm">{success}</div>
                     )}
-                </Button>
-            </form>
-        </FormProvider>
+
+                    <Button type="submit" disabled={loading}>
+                        {loading ? (
+                            <Loader2 className="animate-spin mr-2" size={16} />
+                        ) : tag?.id ? (
+                            "Modifier"
+                        ) : (
+                            "Créer"
+                        )}
+                    </Button>
+                </form>
+            </FormProvider>
+        </CardWrapper>
     );
 }

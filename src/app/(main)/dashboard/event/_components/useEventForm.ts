@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { CreateEventSchema } from "@/helpers/zod/event/create-event-schema";
 import { debugZodParse, logRHFErrors } from "@/helpers/form/form";
 import { useAreas } from "./useAreas";
+import { convertImageToBase64 } from "@/helpers/file/convertImageToBase64";
 
 type EventWithFlexibleDates = Omit<Event, "datestart" | "dateend"> & {
      datestart?: string | Date;
@@ -45,8 +46,9 @@ export function useEventForm(event?: EventWithFlexibleDates) {
                capacity: event?.capacity ?? undefined,
                status: event?.status ?? EventStatus.draft,
                areaId: event?.areaId ?? "",
-               artists: event?.artists?.map(a => a.artistId) ?? [],
+               artists: event?.artists?.map(a => a.id) ?? [],
                tagsJoin: event?.tagsJoin?.map((t) => t.tag.id) ?? [],
+               image: undefined as unknown as File | null,
           },
      });
 
@@ -56,27 +58,35 @@ export function useEventForm(event?: EventWithFlexibleDates) {
           setSuccess(null);
 
           try {
-               const method = event ? "PUT" : "POST";
-               const url = event ? `/api/event/${event.id}` : "/api/event";
+               const method = event?.id ? "PUT" : "POST";
+               const url = "/api/events";
 
                const payload = {
                     ...data,
                     datestart: new Date(data.datestart),
                     dateend: new Date(data.dateend),
+                    imgurl: data.image ? await convertImageToBase64(data.image) : null,
+                    id: event?.id
                };
 
-               console.log(payload)
-               // const res = await fetch(url, {
-               //      method,
-               //      headers: { "Content-Type": "application/json" },
-               //      body: JSON.stringify(payload),
-               // });
+               const res = await fetch(url, {
+                    method,
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+               });
 
-               // if (!res.ok) throw new Error("Erreur lors de l'enregistrement de l'événement");
+               if (!res.ok) {
+                    const errorData = await res.json().catch(() => ({}));
+                    throw new Error(errorData.error || "Erreur lors de l'enregistrement de l'événement");
+               }
 
                setSuccess(event ? "Événement modifié !" : "Événement créé !");
-          } catch (e: any) {
-               setError(e.message ?? "Erreur inconnue");
+          } catch (e: unknown) {
+               if (e instanceof Error) {
+                    setError(e.message ?? "Erreur inconnue");
+               } else {
+                    setError("Erreur inconnue");
+               }
           } finally {
                setLoading(false);
           }
@@ -85,7 +95,6 @@ export function useEventForm(event?: EventWithFlexibleDates) {
      const onInvalid = (errors: Record<string, unknown>) => {
           logRHFErrors(errors);
           debugZodParse(CreateEventSchema(allAreas), form.getValues());
-          // setError("Validation invalide : corrige les champs en rouge.");
           setError("Veuillez corriger les erreurs du formulaire.");
      };
 

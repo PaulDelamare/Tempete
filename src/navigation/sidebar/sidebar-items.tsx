@@ -14,7 +14,7 @@ import {
     GraduationCap,
     type LucideIcon,
     LandPlot,
-    User,
+    User, CircleDollarSign,
 } from "lucide-react";
 
 export interface NavSubItem {
@@ -73,13 +73,13 @@ export const sidebarItems: NavGroup[] = [
                 icon: Calendar,
             },
             {
-                title: "Académie",
-                url: "/dashboard/academy",
-                icon: GraduationCap,
-                comingSoon: true,
+                title: "Sponsors",
+                url: "/dashboard/sponsor",
+                icon: CircleDollarSign,
+                comingSoon: false,
             },
             {
-                title: "Logistique",
+                title: "Logistics",
                 url: "/dashboard/logistics",
                 icon: Forklift,
                 comingSoon: true,

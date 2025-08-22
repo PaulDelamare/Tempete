@@ -18,9 +18,17 @@ interface Artist {
   }>;
 }
 
+interface Sponsor {
+  id: string;
+  name: string;
+  imgurl?: string;
+  website_url?: string;
+}
+
 export default function Home() {
   const [scrollY, setScrollY] = useState(0);
   const [artists, setArtists] = useState<Artist[]>([]);
+  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -33,21 +41,29 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const fetchArtists = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch("/api/artist");
-        if (response.ok) {
-          const data = await response.json();
-          setArtists(data);
+        // Récupérer les artistes
+        const artistsResponse = await fetch("/api/artist");
+        if (artistsResponse.ok) {
+          const artistsData = await artistsResponse.json();
+          setArtists(artistsData);
+        }
+
+        // Récupérer les sponsors
+        const sponsorsResponse = await fetch("/api/sponsors");
+        if (sponsorsResponse.ok) {
+          const sponsorsData = await sponsorsResponse.json();
+          setSponsors(sponsorsData);
         }
       } catch (error) {
-        console.error("Erreur lors du chargement des artistes:", error);
+        console.error("Erreur lors du chargement des données:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchArtists();
+    fetchData();
   }, []);
 
   return (
@@ -167,10 +183,11 @@ export default function Home() {
                             />
                           ) : null}
                           <span
-                            className={`text-2xl ${artist.imgurl && artist.imgurl !== ""
+                            className={`text-2xl ${
+                              artist.imgurl && artist.imgurl !== ""
                                 ? "hidden"
                                 : ""
-                              }`}
+                            }`}
                           >
                             🎸
                           </span>
@@ -262,6 +279,66 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Section Carousel des Logos Sponsors */}
+      <div className="bg-black py-16 overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl font-bold mb-8 text-center text-white font-metal">
+            NOS PARTENAIRES
+          </h2>
+
+          {/* Carousel automatique */}
+          <div className="relative overflow-hidden">
+            <div className="animate-scroll">
+              <div className="flex gap-12 items-center">
+                {/* Premier set de sponsors */}
+                {sponsors.map((sponsor) => (
+                  <a
+                    key={`first-${sponsor.id}`}
+                    href={sponsor.website_url || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-shrink-0 w-32 h-20 relative"
+                  >
+                    <Image
+                      src={
+                        sponsor.imgurl
+                          ? `/images/logos/${sponsor.imgurl}`
+                          : "/images/logos/logo_placeholder.png"
+                      }
+                      alt={sponsor.name}
+                      fill
+                      className="object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-opacity duration-300"
+                    />
+                  </a>
+                ))}
+
+                {/* Deuxième set de sponsors (duplication pour l'effet de bouclage infini) */}
+                {sponsors.map((sponsor) => (
+                  <a
+                    key={`second-${sponsor.id}`}
+                    href={sponsor.website_url || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-shrink-0 w-32 h-20 relative"
+                  >
+                    <Image
+                      src={
+                        sponsor.imgurl
+                          ? `/images/logos/${sponsor.imgurl}`
+                          : "/images/logos/logo_placeholder.png"
+                      }
+                      alt={sponsor.name}
+                      fill
+                      className="object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-opacity duration-300"
+                    />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Section Artistes */}
       <div className="bg-black text-white py-20 px-4">
         <div className="max-w-7xl mx-auto">
@@ -295,33 +372,36 @@ export default function Home() {
                 return (
                   <div
                     key={artist.id}
-                    className={`relative group ${cardSize === "large"
+                    className={`relative group ${
+                      cardSize === "large"
                         ? "md:col-span-2 md:row-span-2"
                         : cardSize === "medium"
-                          ? "lg:col-span-2"
-                          : ""
-                      }`}
+                        ? "lg:col-span-2"
+                        : ""
+                    }`}
                   >
                     {/* Bordure lumineuse */}
                     <div
-                      className={`absolute inset-0 rounded-lg blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${cardSize === "large"
+                      className={`absolute inset-0 rounded-lg blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
+                        cardSize === "large"
                           ? "bg-gradient-to-br from-blue-500/30 to-purple-500/30"
                           : cardSize === "medium"
-                            ? "bg-gradient-to-r from-cyan-500/20 to-blue-500/20"
-                            : "bg-gradient-to-r from-blue-500/20 to-cyan-500/20"
-                        }`}
+                          ? "bg-gradient-to-r from-cyan-500/20 to-blue-500/20"
+                          : "bg-gradient-to-r from-blue-500/20 to-cyan-500/20"
+                      }`}
                     ></div>
 
                     {/* Carte artiste */}
                     <div className="relative bg-black/80 border border-blue-400/50 rounded-lg p-6 hover:border-blue-400 transition-colors duration-300 h-full flex flex-col">
                       {/* Image de l'artiste */}
                       <div
-                        className={`w-full bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg mb-4 flex items-center justify-center overflow-hidden ${cardSize === "large"
+                        className={`w-full bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg mb-4 flex items-center justify-center overflow-hidden ${
+                          cardSize === "large"
                             ? "h-80"
                             : cardSize === "medium"
-                              ? "h-72"
-                              : "h-64"
-                          }`}
+                            ? "h-72"
+                            : "h-64"
+                        }`}
                       >
                         {artist.imgurl && artist.imgurl !== "" ? (
                           <Image
@@ -340,10 +420,11 @@ export default function Home() {
                           />
                         ) : null}
                         <span
-                          className={`text-4xl ${artist.imgurl && artist.imgurl !== ""
+                          className={`text-4xl ${
+                            artist.imgurl && artist.imgurl !== ""
                               ? "hidden"
                               : ""
-                            }`}
+                          }`}
                         >
                           🎸
                         </span>
@@ -352,12 +433,13 @@ export default function Home() {
                       {/* Informations de l'artiste */}
                       <div className="flex-1">
                         <h3
-                          className={`font-bold mb-2 font-metal ${cardSize === "large"
+                          className={`font-bold mb-2 font-metal ${
+                            cardSize === "large"
                               ? "text-2xl"
                               : cardSize === "medium"
-                                ? "text-xl"
-                                : "text-lg"
-                            }`}
+                              ? "text-xl"
+                              : "text-lg"
+                          }`}
                         >
                           {artist.name}
                         </h3>
@@ -399,12 +481,8 @@ export default function Home() {
       <footer className="bg-black text-white py-8 px-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <span className="text-xl">🐦</span>
-            <span className="text-sm">Sup / Tbotak</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xl">📷</span>
-            <span className="text-sm">@myfrottic.com</span>
+            <span className="text-xl">🎸</span>
+            <span className="text-sm">@tempetefestival.com</span>
           </div>
         </div>
       </footer>

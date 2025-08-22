@@ -22,14 +22,22 @@ interface Area {
 
 interface MapComponentProps {
     areas: Area[];
+    initialLatitude?: number;
+    initialLongitude?: number;
+    initialZoom?: number;
 }
 
-export const MapComponent: React.FC<MapComponentProps> = ({ areas }) => {
+export const MapComponent: React.FC<MapComponentProps> = ({ 
+    areas, 
+    initialLatitude = 63.467719565611816,
+    initialLongitude = 142.78130880856264,
+    initialZoom = 17
+}) => {
     const [selectedArea, setSelectedArea] = useState<Area | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [markerClicked, setMarkerClicked] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
-    const [currentZoom, setCurrentZoom] = useState(15);
+    const [currentZoom, setCurrentZoom] = useState(initialZoom);
     const [selectedType, setSelectedType] = useState<string>("all");
 
     const filteredAreas = areas.filter((area) => {
@@ -69,9 +77,9 @@ export const MapComponent: React.FC<MapComponentProps> = ({ areas }) => {
         <div className="flex-1 relative min-h-0 overflow-hidden">
             <Map
                 initialViewState={{
-                    longitude: 142.78130880856264,
-                    latitude: 63.467719565611816,
-                    zoom: 17,
+                    longitude: initialLongitude,
+                    latitude: initialLatitude,
+                    zoom: initialZoom,
                 }}
                 mapStyle="https://tiles.openfreemap.org/styles/liberty"
                 onMove={handleViewStateChange}

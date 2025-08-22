@@ -2,6 +2,8 @@ import React from "react";
 import { Popup } from "@vis.gl/react-maplibre";
 import { Badge } from "@/components/ui/badge";
 import { formatEventDateTime } from "@/lib/utils/date";
+import { getCurrentAndNextEvent, getAreaTypeLabel } from "@/lib/utils/areaUtils";
+import Link from "next/link";
 
 interface Area {
     id: string;
@@ -22,42 +24,7 @@ interface AreaPopupProps {
     onClose: () => void;
 }
 
-const getAreaTypeLabel = (type: string) => {
-    switch (type) {
-        case 'stage':
-            return 'Scène';
-        case 'food':
-            return 'Restauration';
-        case 'merch':
-            return 'Boutique';
-        case 'chill':
-            return 'Détente';
-        default:
-            return type.charAt(0).toUpperCase() + type.slice(1);
-    }
-};
 
-const getCurrentAndNextEvent = (area: Area) => {
-    if (!area.events) return { currentEvent: null, nextEvent: null };
-
-    const now = new Date();
-    const publishedEvents = area.events.filter(event => event.status === 'published');
-
-    const currentEvent = publishedEvents.find(event => {
-        const eventStart = new Date(event.datestart);
-        const eventEnd = new Date(event.dateend);
-        return eventStart <= now && eventEnd >= now;
-    });
-
-    const nextEvent = publishedEvents
-        .filter(event => {
-            const eventStart = new Date(event.datestart);
-            return eventStart > now;
-        })
-        .sort((a, b) => new Date(a.datestart).getTime() - new Date(b.datestart).getTime())[0];
-
-    return { currentEvent, nextEvent };
-};
 
 export const AreaPopup: React.FC<AreaPopupProps> = ({ area, onClose }) => {
     return (
@@ -73,7 +40,9 @@ export const AreaPopup: React.FC<AreaPopupProps> = ({ area, onClose }) => {
         >
             <div className="w-[260px] max-w-[260px] px-4 py-3 space-y-3 bg-black text-white">
                 <div>
-                    <div className="text-base font-semibold leading-tight truncate font-metal text-blue-400 hover:text-blue-300 cursor-pointer transition-colors">{area.name}</div>
+                    <Link href={`/areas/${area.id}`}>
+                        <div className="text-base font-semibold leading-tight truncate font-metal text-blue-400 hover:text-blue-300 cursor-pointer transition-colors">{area.name}</div>
+                    </Link>
                     <Badge variant="secondary" className="w-fit px-2 py-0.5 text-[10px] mt-1 bg-blue-600/20 text-blue-400 border-blue-400/30">
                         {getAreaTypeLabel(area.type)}
                     </Badge>

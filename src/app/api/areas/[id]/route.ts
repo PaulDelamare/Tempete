@@ -1,51 +1,93 @@
 import { NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { handleError } from "@/lib/utils/api-error"
-import { Prisma } from "@/generated/prisma"
+import { validateBody } from "@/lib/validation"
+import { idSchema } from "@/helpers/zod/id-schema"
+import { handleApiError } from "@/lib/errors"
+import { deleteArea, findOneArea } from "@/services/area.service"
 
 type Params = { params: { id: string } }
-const toDecimal = (v: unknown) =>
-    v === null || v === undefined || v === "" ? undefined : new Prisma.Decimal(v as any)
 
+/**
+ * @openapi
+ * /api/area/{id}:
+ *   get:
+ *     summary: Récupère une zone par ID
+ *     tags:
+ *       - Area
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de la zone
+ *     responses:
+ *       200:
+ *         description: Zone trouvée
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Area'
+ *       404:
+ *         description: Zone non trouvée
+ */
 export async function GET(_req: Request, { params }: Params) {
     try {
-        const area = await prisma.area.findUnique({
-            where: { id: params.id },
-            include: { events: true, products: true },
-        })
-        if (!area) return NextResponse.json({ error: "Area not found" }, { status: 404 })
-        return NextResponse.json(area)
+
+        const paramsData = await Promise.resolve(params);
+
+        const validatedData = validateBody(idSchema, paramsData);
+
+        const area = await findOneArea(validatedData.id);
+
+        return NextResponse.json(area, { status: 200 })
     } catch (error) {
-        return handleError(error, "GET /api/areas/[id]")
+
+        return handleApiError(error);
     }
 }
 
-export async function PUT(req: Request, { params }: Params) {
+/**
+ * @openapi
+ * /api/area/{id}:
+ *   delete:
+ *     summary: Supprime une zone par ID
+ *     tags:
+ *       - Area
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de la zone à supprimer
+ *     responses:
+ *       200:
+ *         description: Zone supprimée avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Area deleted successfully
+ *       404:
+ *         description: Zone non trouvée
+ */
+export async function DELETE(
+    request: Request,
+    { params }: { params: { id: string } }
+) {
     try {
-        const body = await req.json()
-        const area = await prisma.area.update({
-            where: { id: params.id },
-            data: {
-                name: body.name ?? undefined,
-                imgurl: body.imgurl ?? undefined,
-                description: body.description ?? undefined,
-                type: body.type ?? undefined,
-                latitude: toDecimal(body.latitude),
-                longitude: toDecimal(body.longitude),
-                capacity: body.capacity ?? undefined,
-            },
-        })
-        return NextResponse.json(area)
-    } catch (error) {
-        return handleError(error, "PUT /api/areas/[id]")
-    }
-}
+        const paramsData = await Promise.resolve(params);
 
-export async function DELETE(_req: Request, { params }: Params) {
-    try {
-        await prisma.area.delete({ where: { id: params.id } })
-        return NextResponse.json({ success: true })
+        const validatedData = validateBody(idSchema, paramsData);
+
+        await deleteArea(validatedData.id);
+
+        return NextResponse.json({ message: 'Area deleted successfully' }, { status: 200 });
     } catch (error) {
-        return handleError(error, "DELETE /api/areas/[id]")
+
+        return handleApiError(error);
     }
 }

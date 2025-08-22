@@ -13,6 +13,7 @@ export class ApiError extends Error {
 
 export function handleApiError(error: unknown) {
      if (error instanceof ApiError) {
+          console.warn(`API Error ${error.status}: ${error.message}`, error.details);
           return NextResponse.json(
                { error: error.message, details: error.details },
                { status: error.status }
@@ -20,10 +21,11 @@ export function handleApiError(error: unknown) {
      }
 
      console.error(error);
-     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
 }
 
 export function throwError(status: number, message: string, details?: unknown) {
-     console.error(`Error ${status}: ${message}`, details);
+     console.warn(`Error ${status}: ${message}`, details);
      throw new ApiError(status, message, details);
 }
+
+

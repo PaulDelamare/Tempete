@@ -12,7 +12,6 @@ export async function middleware(request: NextRequest) {
           "/api/auth/signin",
           "/api/auth/signout",
           "/sign-in",
-          "/sign-up",
      ];
 
      if (publicRoutes.some((route) => pathname.startsWith(route))) {

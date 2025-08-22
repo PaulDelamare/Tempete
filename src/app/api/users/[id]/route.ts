@@ -2,8 +2,55 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { handleError } from "@/lib/utils/api-error"
 
-// GET user by ID
-export async function GET(
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   get:
+ *     summary: Récupérer un utilisateur par son ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de l'utilisateur
+ *     responses:
+ *       200:
+ *         description: Utilisateur trouvé
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 firstname:
+ *                   type: string
+ *                 roles:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                 emailVerified:
+ *                   type: boolean
+ *                 image:
+ *                   type: string
+ *                   nullable: true
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
+ *       404:
+ *         description: Utilisateur introuvable
+ *       500:
+ *         description: Erreur serveur
+ */export async function GET(
     req: Request,
     { params }: { params: { id: string } }
 ) {
@@ -26,35 +73,34 @@ export async function GET(
     }
 }
 
-// UPDATE user
-export async function PUT(
-    req: Request,
-    { params }: { params: { id: string } }
-) {
-    try {
-        const body = await req.json()
 
-        const updatedUser = await prisma.user.update({
-            where: { id: params.id },
-            data: {
-                email: body.email,
-                name: body.name,
-                firstname: body.firstname,
-                roles: body.roles,
-                emailVerified: body.emailVerified,
-                image: body.image,
-                updatedAt: new Date(),
-            },
-        })
-
-        return NextResponse.json(updatedUser)
-    } catch (error) {
-        return handleError(error, "PUT /api/users/[id]")
-    }
-}
-
-// DELETE user
-export async function DELETE(
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   delete:
+ *     summary: Supprimer un utilisateur par son ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de l'utilisateur
+ *     responses:
+ *       200:
+ *         description: Utilisateur supprimé avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User deleted successfully
+ *       500:
+ *         description: Erreur serveur
+ */export async function DELETE(
     req: Request,
     { params }: { params: { id: string } }
 ) {

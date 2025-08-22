@@ -1,13 +1,61 @@
+/**
+ * @swagger
+ * tags:
+ *   name: MailAlerts
+ *   description: Gestion des alertes email liées à un événement
+ */
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { handleError } from "@/lib/utils/api-error";
 
+
+/**
+ * @swagger
+ * /api/mail-alerts:
+ *   post:
+ *     summary: Créer une alerte email pour un événement
+ *     tags: [MailAlerts]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - eventId
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "john.doe@example.com"
+ *               eventId:
+ *                 type: string
+ *                 example: "evt_12345"
+ *     responses:
+ *       200:
+ *         description: Alerte créée avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 eventId:
+ *                   type: string
+ *       404:
+ *         description: Événement non trouvé
+ *       500:
+ *         description: Erreur serveur
+ */
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { email, eventId } = body;
 
-    // Vérifier que l'événement existe
     const event = await prisma.event.findUnique({
       where: { id: eventId },
     });
@@ -19,7 +67,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Créer l'alerte mail
     const mailAlert = await prisma.mailAlert.create({
       data: {
         email,
@@ -33,6 +80,45 @@ export async function POST(req: Request) {
   }
 }
 
+
+/**
+ * @swagger
+ * /api/mail-alerts:
+ *   delete:
+ *     summary: Supprimer une alerte email liée à un événement
+ *     tags: [MailAlerts]
+ *     parameters:
+ *       - in: query
+ *         name: eventId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de l’événement
+ *       - in: query
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: email
+ *         description: Email associé à l’alerte
+ *     responses:
+ *       200:
+ *         description: Alerte supprimée avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 deletedCount:
+ *                   type: integer
+ *                   example: 1
+ *       400:
+ *         description: Paramètres manquants
+ *       500:
+ *         description: Erreur serveur
+ */
 export async function DELETE(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -46,7 +132,6 @@ export async function DELETE(req: Request) {
       );
     }
 
-    // Supprimer l'alerte mail
     const deletedAlert = await prisma.mailAlert.deleteMany({
       where: {
         eventId,

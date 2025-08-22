@@ -25,6 +25,8 @@ import {
     useSidebar,
 } from "@/components/ui/sidebar";
 import { getInitials } from "@/lib/utils";
+import { authClient } from "@/lib/auth-client";
+import { redirect } from "next/navigation";
 
 export function NavUser({
     user,
@@ -109,9 +111,19 @@ export function NavUser({
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>
+                        <DropdownMenuItem
+                            onClick={async () => {
+                                await authClient.signOut({
+                                    fetchOptions: {
+                                        onSuccess: () => {
+                                            redirect("/");
+                                        },
+                                    },
+                                });
+                            }}
+                        >
                             <LogOut />
-                            Log out
+                            Déconnexion
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

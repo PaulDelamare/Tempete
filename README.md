@@ -435,9 +435,28 @@ npx prisma migrate reset   # Réinitialise la DB (développement)
 npx prisma migrate status  # Statut des migrations
 npx prisma db seed   # Seeder la base de données
 
+# Serveur Cron
+npm run cron         # Lance le serveur cron pour les alertes email
+
 # Linting et formatage
 npm run lint         # Vérification du code
 npm run format       # Formatage automatique
+```
+
+## ⏰ Serveur Cron
+
+Le projet inclut un serveur cron séparé qui gère l'envoi automatique des alertes email :
+
+- **Fréquence** : Vérification toutes les 30 minutes
+- **Fonction** : Envoie des alertes pour les événements qui commencent dans 30min-1h
+- **Architecture** : Serveur Node.js séparé qui appelle l'API Next.js
+- **Template** : Emails personnalisés avec design cohérent au thème
+
+**Utilisation :**
+```bash
+# Démarrer le serveur cron
+npm run cron
+```
 ```
 
 ## 📁 Structure des assets

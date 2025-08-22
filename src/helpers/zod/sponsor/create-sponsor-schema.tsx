@@ -39,8 +39,6 @@ export const SponsorSchema = z.object({
     website_url: WebUrlSchema.nullable(),
 });
 
-
-
 export const MergedSponsorPutSchema = idSchema.extend(SponsorSchema.shape);
 
 export type CreateSponsorApiSchemaType = z.infer<typeof SponsorSchema>;
@@ -48,4 +46,3 @@ export type CreateSponsorApiSchemaType = z.infer<typeof SponsorSchema>;
 export type MergedSponsorPutSchemaType = z.infer<typeof MergedSponsorPutSchema>;
 
 export type CreateSponsorSchemaType = z.infer<typeof CreateSponsorSchema>;
-

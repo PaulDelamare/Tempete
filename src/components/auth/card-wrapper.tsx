@@ -24,11 +24,11 @@ const CardWrapper = ({
     children,
     cardTitle,
     cardDescription,
-    cardFooterLinkTitle = "Learn More", // Default value
+    cardFooterLinkTitle = "Learn More",
     cardFooterDescription = "",
     cardFooterLink,
     className = "",
-    maxWidth = "max-w-md",
+    maxWidth = "",
 }: CardWrapperType) => {
     return (
         <Card

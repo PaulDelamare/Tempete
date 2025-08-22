@@ -1,8 +1,56 @@
+
+/**
+ * @swagger
+ * tags:
+ *   name: Users
+ *   description: Gestion des utilisateurs
+ */
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { handleError } from "@/lib/utils/api-error"
 
-// GET all users
+/**
+ * @swagger
+ * /api/users:
+ *   get:
+ *     summary: Récupérer la liste des utilisateurs
+ *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: Liste des utilisateurs récupérée avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   email:
+ *                     type: string
+ *                   name:
+ *                     type: string
+ *                   firstname:
+ *                     type: string
+ *                   roles:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                   emailVerified:
+ *                     type: boolean
+ *                   image:
+ *                     type: string
+ *                     nullable: true
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *                   updatedAt:
+ *                     type: string
+ *                     format: date-time
+ *       500:
+ *         description: Erreur serveur
+ */
 export async function GET() {
     try {
         const users = await prisma.user.findMany({
@@ -15,29 +63,5 @@ export async function GET() {
         return NextResponse.json(users)
     } catch (error) {
         return handleError(error, "GET /api/users")
-    }
-}
-
-// CREATE user
-export async function POST(req: Request) {
-    try {
-        const body = await req.json()
-
-        const user = await prisma.user.create({
-            data: {
-                email: body.email,
-                name: body.name,
-                firstname: body.firstname,
-                roles: body.roles ?? [],
-                emailVerified: body.emailVerified ?? false,
-                image: body.image,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            },
-        })
-
-        return NextResponse.json(user, { status: 201 })
-    } catch (error) {
-        return handleError(error, "POST /api/users")
     }
 }

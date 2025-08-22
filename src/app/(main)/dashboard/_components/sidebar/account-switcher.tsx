@@ -14,6 +14,8 @@ import {
     DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
 import { cn, getInitials } from "@/lib/utils";
+import { authClient } from "@/lib/auth-client";
+import { redirect } from "next/navigation";
 
 export function AccountSwitcher({
     users,
@@ -94,9 +96,19 @@ export function AccountSwitcher({
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                    onClick={async () => {
+                        await authClient.signOut({
+                            fetchOptions: {
+                                onSuccess: () => {
+                                    redirect("/login");
+                                },
+                            },
+                        });
+                    }}
+                >
                     <LogOut />
-                    Log out
+                    Déconnexion
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

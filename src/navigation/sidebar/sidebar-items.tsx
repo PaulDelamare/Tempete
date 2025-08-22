@@ -1,17 +1,9 @@
 import {
-    ShoppingBag,
-    Forklift,
-    Mail,
-    MessageSquare,
+
     Calendar,
-    Kanban,
     ReceiptText,
     Users,
-    Lock,
-    Fingerprint,
-    SquareArrowUpRight,
     LayoutDashboard,
-    GraduationCap,
     type LucideIcon,
     LandPlot,
     User,

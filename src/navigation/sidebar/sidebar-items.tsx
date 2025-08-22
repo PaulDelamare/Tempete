@@ -14,32 +14,33 @@ import {
     GraduationCap,
     type LucideIcon,
     LandPlot,
-    User, CircleDollarSign,
+    User,
+    CircleDollarSign,
 } from "lucide-react";
 
 export interface NavSubItem {
-  title: string;
-  url: string;
-  icon?: LucideIcon;
-  comingSoon?: boolean;
-  newTab?: boolean;
-  isNew?: boolean;
+    title: string;
+    url: string;
+    icon?: LucideIcon;
+    comingSoon?: boolean;
+    newTab?: boolean;
+    isNew?: boolean;
 }
 
 export interface NavMainItem {
-  title: string;
-  url: string;
-  icon?: LucideIcon;
-  subItems?: NavSubItem[];
-  comingSoon?: boolean;
-  newTab?: boolean;
-  isNew?: boolean;
+    title: string;
+    url: string;
+    icon?: LucideIcon;
+    subItems?: NavSubItem[];
+    comingSoon?: boolean;
+    newTab?: boolean;
+    isNew?: boolean;
 }
 
 export interface NavGroup {
-  id: number;
-  label?: string;
-  items: NavMainItem[];
+    id: number;
+    label?: string;
+    items: NavMainItem[];
 }
 
 export const sidebarItems: NavGroup[] = [
@@ -51,6 +52,11 @@ export const sidebarItems: NavGroup[] = [
                 title: "Défaut",
                 url: "/dashboard/default",
                 icon: LayoutDashboard,
+            },
+            {
+                title: "Logistics",
+                url: "/dashboard/user",
+                icon: User,
             },
             {
                 title: "Artistes",
@@ -77,12 +83,6 @@ export const sidebarItems: NavGroup[] = [
                 url: "/dashboard/sponsor",
                 icon: CircleDollarSign,
                 comingSoon: false,
-            },
-            {
-                title: "Logistics",
-                url: "/dashboard/logistics",
-                icon: Forklift,
-                comingSoon: true,
             },
         ],
     },
@@ -137,8 +137,16 @@ export const sidebarItems: NavGroup[] = [
                 url: "/auth",
                 icon: Fingerprint,
                 subItems: [
-                    { title: "Connexion v1", url: "/auth/v1/login", newTab: true },
-                    { title: "Connexion v2", url: "/auth/v2/login", newTab: true },
+                    {
+                        title: "Connexion v1",
+                        url: "/auth/v1/login",
+                        newTab: true,
+                    },
+                    {
+                        title: "Connexion v2",
+                        url: "/auth/v2/login",
+                        newTab: true,
+                    },
                     {
                         title: "Inscription v1",
                         url: "/auth/v1/register",

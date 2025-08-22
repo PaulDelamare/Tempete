@@ -1,5 +1,6 @@
 const cron = require('node-cron');
 const { PrismaClient } = require('../generated/prisma');
+const { sendEmail } = require('../lib/email/sendEmail');
 
 const prisma = new PrismaClient();
 
@@ -18,7 +19,8 @@ async function fetchEmailAlerts() {
             }
         });
 
-        alerts.forEach(alert => {
+        // Traiter les alertes en parallèle
+        const emailPromises = alerts.map(async (alert) => {
             if (alert.event && alert.event.status === 'published') {
                 const eventStart = new Date(alert.event.datestart);
                 const now = new Date();
@@ -26,16 +28,32 @@ async function fetchEmailAlerts() {
                 const minutesDiff = timeDiff / (1000 * 60);
 
                 // Si l'événement commence dans 30 minutes à 1 heure
-                console.log("time diff : ", minutesDiff);
-                console.log("event : ", alert.event);
                 if (minutesDiff >= 30 && minutesDiff <= 60) {
-                    console.log(`🚨 ALERTE : Événement "${alert.event.name}" commence dans ${Math.round(minutesDiff)} minutes !`);
-                    console.log(`📧 Email: ${alert.email}`);
-                    console.log(`⏰ Heure de début: ${eventStart.toLocaleString('fr-FR')}`);
-                    console.log('---');
+                    try {
+                        // Envoyer l'email d'alerte
+                        await sendEmail(
+                            alert.email,
+                            "no-reply@tempete.com",
+                            `🚨 ALERTE : ${alert.event.name} commence dans ${Math.round(minutesDiff)} minutes !`,
+                            "event-reminder",
+                            {
+                                eventName: alert.event.name,
+                                eventStart: eventStart.toLocaleString('fr-FR'),
+                                minutesLeft: Math.round(minutesDiff),
+                                userEmail: alert.email
+                            }
+                        );
+
+                        console.log(`✅ Email envoyé à ${alert.email} pour l'événement "${alert.event.name}"`);
+                    } catch (error) {
+                        console.error(`❌ Erreur envoi email à ${alert.email}:`, error.message);
+                    }
                 }
             }
         });
+
+        // Attendre que tous les emails soient traités
+        await Promise.all(emailPromises);
 
     } catch (error) {
         console.error('❌ Erreur:', error.message);

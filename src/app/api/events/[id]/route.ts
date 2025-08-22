@@ -1,49 +1,80 @@
 import { NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { handleError } from "@/lib/utils/api-error"
+import { deleteEvent, findOneEvent } from "@/services/event.service"
+import { handleApiError } from "@/lib/errors"
 
 type Params = { params: { id: string } }
 
+/**
+ * @openapi
+ * /api/event/{id}:
+ *   get:
+ *     summary: Récupère un événement par son ID
+ *     tags:
+ *       - Event
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: ID de l'événement
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Événement trouvé
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Event'
+ *       404:
+ *         description: Événement non trouvé
+ *       500:
+ *         description: Erreur interne du serveur
+ */
 export async function GET(_req: Request, { params }: Params) {
     try {
-        const event = await prisma.event.findUnique({
-            where: { id: params.id },
-            include: { area: true, artists: true, tagsJoin: true },
-        })
-        if (!event) return NextResponse.json({ error: "Event not found" }, { status: 404 })
-        return NextResponse.json(event)
+        const paramsData = await Promise.resolve(params);
+        const event = await findOneEvent(paramsData.id);
+        return NextResponse.json(event);
     } catch (error) {
-        return handleError(error, "GET /api/events/[id]")
+        return handleApiError(error);
     }
 }
 
-export async function PUT(req: Request, { params }: Params) {
-    try {
-        const body = await req.json()
-        const event = await prisma.event.update({
-            where: { id: params.id },
-            data: {
-                name: body.name,
-                imgurl: body.imgurl,
-                description: body.description,
-                datestart: new Date(body.datestart),
-                dateend: new Date(body.dateend),
-                capacity: body.capacity,
-                status: body.status,
-                areaId: body.areaId,
-            },
-        })
-        return NextResponse.json(event)
-    } catch (error) {
-        return handleError(error, "PUT /api/events/[id]")
-    }
-}
-
+/**
+ * @openapi
+ * /api/event/{id}:
+ *   delete:
+ *     summary: Supprime un événement par son ID
+ *     tags:
+ *       - Event
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: ID de l'événement à supprimer
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Événement supprimé
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *       404:
+ *         description: Événement non trouvé
+ *       500:
+ *         description: Erreur interne du serveur
+ */
 export async function DELETE(_req: Request, { params }: Params) {
     try {
-        await prisma.event.delete({ where: { id: params.id } })
-        return NextResponse.json({ success: true })
+        const paramsData = await Promise.resolve(params);
+        await deleteEvent(paramsData.id);
+        return NextResponse.json({ success: true }, { status: 200 });
     } catch (error) {
-        return handleError(error, "DELETE /api/events/[id]")
+        return handleApiError(error);
     }
 }

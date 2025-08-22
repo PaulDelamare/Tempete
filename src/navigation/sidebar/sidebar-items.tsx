@@ -45,17 +45,17 @@ export interface NavGroup {
 export const sidebarItems: NavGroup[] = [
     {
         id: 1,
-        label: "Dashboards",
+        label: "Tableaux de bord",
         items: [
             {
-                title: "Default",
+                title: "Défaut",
                 url: "/dashboard/default",
                 icon: LayoutDashboard,
             },
             {
                 title: "Artistes",
                 url: "/dashboard/artist",
-                icon: User,
+                icon: Users,
             },
             {
                 title: "Zones",
@@ -68,19 +68,18 @@ export const sidebarItems: NavGroup[] = [
                 icon: ReceiptText,
             },
             {
-                title: "E-commerce",
-                url: "/dashboard/e-commerce",
-                icon: ShoppingBag,
-                comingSoon: true,
+                title: "Événements",
+                url: "/dashboard/event",
+                icon: Calendar,
             },
             {
-                title: "Academy",
+                title: "Académie",
                 url: "/dashboard/academy",
                 icon: GraduationCap,
                 comingSoon: true,
             },
             {
-                title: "Logistics",
+                title: "Logistique",
                 url: "/dashboard/logistics",
                 icon: Forklift,
                 comingSoon: true,
@@ -104,7 +103,7 @@ export const sidebarItems: NavGroup[] = [
                 comingSoon: true,
             },
             {
-                title: "Calendar",
+                title: "Calendrier",
                 url: "/calendar",
                 icon: Calendar,
                 comingSoon: true,
@@ -116,37 +115,37 @@ export const sidebarItems: NavGroup[] = [
                 comingSoon: true,
             },
             {
-                title: "Invoice",
+                title: "Facture",
                 url: "/invoice",
                 icon: ReceiptText,
                 comingSoon: true,
             },
             {
-                title: "Users",
+                title: "Utilisateurs",
                 url: "/users",
                 icon: Users,
                 comingSoon: true,
             },
             {
-                title: "Roles",
+                title: "Rôles",
                 url: "/roles",
                 icon: Lock,
                 comingSoon: true,
             },
             {
-                title: "Authentication",
+                title: "Authentification",
                 url: "/auth",
                 icon: Fingerprint,
                 subItems: [
-                    { title: "Login v1", url: "/auth/v1/login", newTab: true },
-                    { title: "Login v2", url: "/auth/v2/login", newTab: true },
+                    { title: "Connexion v1", url: "/auth/v1/login", newTab: true },
+                    { title: "Connexion v2", url: "/auth/v2/login", newTab: true },
                     {
-                        title: "Register v1",
+                        title: "Inscription v1",
                         url: "/auth/v1/register",
                         newTab: true,
                     },
                     {
-                        title: "Register v2",
+                        title: "Inscription v2",
                         url: "/auth/v2/register",
                         newTab: true,
                     },
@@ -156,10 +155,10 @@ export const sidebarItems: NavGroup[] = [
     },
     {
         id: 3,
-        label: "Misc",
+        label: "Divers",
         items: [
             {
-                title: "Others",
+                title: "Autres",
                 url: "/others",
                 icon: SquareArrowUpRight,
                 comingSoon: true,

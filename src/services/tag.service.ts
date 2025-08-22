@@ -105,3 +105,44 @@ export async function deleteTag(id: string) {
           where: { id },
      });
 }
+
+/**
+ * Attaches multiple tags to a specified event by creating entries in the eventTag table.
+ *
+ * @param eventId - The unique identifier of the event to which tags will be attached.
+ * @param tags - An array of tag IDs to associate with the event.
+ * @returns A promise that resolves when the tags have been attached.
+ */
+export async function attachTagsToEvent(eventId: string, tags: string[]) {
+     if (tags.length === 0) return;
+
+     await prisma.eventTag.createMany({
+          data: tags.map((tagId) => ({
+               eventId,
+               tagId,
+          })),
+     });
+}
+
+/**
+ * Replaces all tags associated with a specific event.
+ *
+ * This function first removes all existing tag associations for the given event,
+ * then adds new associations for the provided list of tag IDs.
+ *
+ * @param eventId - The unique identifier of the event whose tags are to be replaced.
+ * @param tags - An array of tag IDs to associate with the event. If empty, all tags are removed.
+ * @returns A promise that resolves when the operation is complete.
+ */
+export async function replaceTagsForEvent(eventId: string, tags: string[]) {
+     await prisma.eventTag.deleteMany({ where: { eventId } });
+
+     if (tags.length === 0) return;
+
+     await prisma.eventTag.createMany({
+          data: tags.map((tagId) => ({
+               eventId,
+               tagId,
+          })),
+     });
+}

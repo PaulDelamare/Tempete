@@ -89,3 +89,46 @@ export async function deleteArtist(id: string) {
 
      return prisma.artist.delete({ where: { id } });
 }
+
+
+/**
+ * Attaches multiple artists to a specified event by creating entries in the eventArtist table.
+ *
+ * @param eventId - The unique identifier of the event to which artists will be attached.
+ * @param artists - An array of artist IDs to associate with the event.
+ * @returns A promise that resolves when the artists have been attached to the event.
+ */
+export async function attachArtistsToEvent(eventId: string, artists: string[]) {
+     if (artists.length === 0) return;
+
+     await prisma.eventArtist.createMany({
+          data: artists.map((artistId) => ({
+               eventId,
+               artistId,
+          })),
+     });
+}
+
+/**
+ * Replaces the list of artists associated with a specific event.
+ *
+ * This function first removes all existing artist associations for the given event,
+ * then adds new associations for the provided list of artist IDs.
+ * If the list of artists is empty, all associations are simply removed.
+ *
+ * @param eventId - The unique identifier of the event.
+ * @param artists - An array of artist IDs to associate with the event.
+ * @returns A promise that resolves when the operation is complete.
+ */
+export async function replaceArtistsForEvent(eventId: string, artists: string[]) {
+     await prisma.eventArtist.deleteMany({ where: { eventId } });
+
+     if (artists.length === 0) return;
+
+     await prisma.eventArtist.createMany({
+          data: artists.map((artistId) => ({
+               eventId,
+               artistId,
+          })),
+     });
+}

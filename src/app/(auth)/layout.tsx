@@ -1,9 +1,21 @@
-import React from 'react'
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import React from "react";
 
-const AuthLayout = ({ children }: { children: React.ReactNode }) => {
-     return (
-          <div className='flex items-center justify-center w-svw h-svh'>{children}</div>
-     )
-}
+const AuthLayout = async ({ children }: { children: React.ReactNode }) => {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
 
-export default AuthLayout
+    if (session) {
+        redirect("/dashboard");
+    }
+    return (
+        <div className="flex items-center justify-center w-svw h-svh">
+            {children}
+        </div>
+    );
+};
+
+export default AuthLayout;

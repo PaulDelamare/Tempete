@@ -46,7 +46,7 @@ export default function SignUp() {
                     email: values.email,
                     password: values.password,
                     name: `${values.firstName} ${values.lastName}`,
-                    callbackURL: "/dashboard",
+                    callbackURL: "/dashboard/user",
                },
                {
                     onRequest: () => {

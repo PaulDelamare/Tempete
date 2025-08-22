@@ -1,45 +1,38 @@
 import {
-    ShoppingBag,
-    Forklift,
-    Mail,
-    MessageSquare,
+
     Calendar,
-    Kanban,
     ReceiptText,
     Users,
-    Lock,
-    Fingerprint,
-    SquareArrowUpRight,
     LayoutDashboard,
-    GraduationCap,
     type LucideIcon,
     LandPlot,
-    User, CircleDollarSign,
+    User,
+    CircleDollarSign,
 } from "lucide-react";
 
 export interface NavSubItem {
-  title: string;
-  url: string;
-  icon?: LucideIcon;
-  comingSoon?: boolean;
-  newTab?: boolean;
-  isNew?: boolean;
+    title: string;
+    url: string;
+    icon?: LucideIcon;
+    comingSoon?: boolean;
+    newTab?: boolean;
+    isNew?: boolean;
 }
 
 export interface NavMainItem {
-  title: string;
-  url: string;
-  icon?: LucideIcon;
-  subItems?: NavSubItem[];
-  comingSoon?: boolean;
-  newTab?: boolean;
-  isNew?: boolean;
+    title: string;
+    url: string;
+    icon?: LucideIcon;
+    subItems?: NavSubItem[];
+    comingSoon?: boolean;
+    newTab?: boolean;
+    isNew?: boolean;
 }
 
 export interface NavGroup {
-  id: number;
-  label?: string;
-  items: NavMainItem[];
+    id: number;
+    label?: string;
+    items: NavMainItem[];
 }
 
 export const sidebarItems: NavGroup[] = [
@@ -51,6 +44,11 @@ export const sidebarItems: NavGroup[] = [
                 title: "Défaut",
                 url: "/dashboard/default",
                 icon: LayoutDashboard,
+            },
+            {
+                title: "Logistics",
+                url: "/dashboard/user",
+                icon: User,
             },
             {
                 title: "Artistes",
@@ -77,91 +75,6 @@ export const sidebarItems: NavGroup[] = [
                 url: "/dashboard/sponsor",
                 icon: CircleDollarSign,
                 comingSoon: false,
-            },
-            {
-                title: "Logistics",
-                url: "/dashboard/logistics",
-                icon: Forklift,
-                comingSoon: true,
-            },
-        ],
-    },
-    {
-        id: 2,
-        label: "Pages",
-        items: [
-            {
-                title: "Email",
-                url: "/mail",
-                icon: Mail,
-                comingSoon: true,
-            },
-            {
-                title: "Chat",
-                url: "/chat",
-                icon: MessageSquare,
-                comingSoon: true,
-            },
-            {
-                title: "Calendrier",
-                url: "/calendar",
-                icon: Calendar,
-                comingSoon: true,
-            },
-            {
-                title: "Kanban",
-                url: "/kanban",
-                icon: Kanban,
-                comingSoon: true,
-            },
-            {
-                title: "Facture",
-                url: "/invoice",
-                icon: ReceiptText,
-                comingSoon: true,
-            },
-            {
-                title: "Utilisateurs",
-                url: "/users",
-                icon: Users,
-                comingSoon: true,
-            },
-            {
-                title: "Rôles",
-                url: "/roles",
-                icon: Lock,
-                comingSoon: true,
-            },
-            {
-                title: "Authentification",
-                url: "/auth",
-                icon: Fingerprint,
-                subItems: [
-                    { title: "Connexion v1", url: "/auth/v1/login", newTab: true },
-                    { title: "Connexion v2", url: "/auth/v2/login", newTab: true },
-                    {
-                        title: "Inscription v1",
-                        url: "/auth/v1/register",
-                        newTab: true,
-                    },
-                    {
-                        title: "Inscription v2",
-                        url: "/auth/v2/register",
-                        newTab: true,
-                    },
-                ],
-            },
-        ],
-    },
-    {
-        id: 3,
-        label: "Divers",
-        items: [
-            {
-                title: "Autres",
-                url: "/others",
-                icon: SquareArrowUpRight,
-                comingSoon: true,
             },
         ],
     },

@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 import TagForm from "./_components/TagForm";
-import ArtistModal from "@/app/(main)/dashboard/artist/_components/ArtistModal"; // tu peux renommer en TagModal si tu veux
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
@@ -41,6 +39,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import TagModal from "@/app/(main)/dashboard/tag/_components/TagModal";
 
 type Tag = {
     id: string;
@@ -198,7 +197,7 @@ export default function TagPage() {
                 </CardContent>
             </Card>
 
-            <ArtistModal
+            <TagModal
                 open={modalOpen}
                 onClose={() => {
                     setModalOpen(false);
@@ -215,7 +214,7 @@ export default function TagPage() {
                         onSave={() => setReload((prev) => prev + 1)}
                     />
                 )}
-            </ArtistModal>
+            </TagModal>
         </div>
     );
 }

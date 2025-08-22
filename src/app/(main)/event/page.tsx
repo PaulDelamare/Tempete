@@ -55,8 +55,26 @@ export default function EventPage() {
         const res = await fetch("/api/events");
         if (res.ok) {
           const data = await res.json();
-          setEvents(data);
-          setFilteredEvents(data);
+          // Filtrer les événements dont la date de fin est passée
+          const now = new Date();
+
+          const activeEvents = data.filter((event: Event) => {
+            // Vérifier que la date de fin existe et est valide
+            if (!event.dateend) {
+              return false;
+            }
+
+            const eventEnd = new Date(event.dateend);
+
+            // Vérifier que la date est valide
+            if (isNaN(eventEnd.getTime())) {
+              return false;
+            }
+
+            return eventEnd >= now;
+          });
+          setEvents(activeEvents);
+          setFilteredEvents(activeEvents);
         }
       } finally {
         setLoading(false);

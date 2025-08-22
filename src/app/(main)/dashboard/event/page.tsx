@@ -244,8 +244,9 @@ export default function EventPage() {
                                         tag: t.tag,
                                     })) ?? [],
                                 artists:
-                                    selectedEvent.artists?.map((a) => a.artist) ??
-                                    [],
+                                    selectedEvent.artists?.map(
+                                        (a) => a.artist
+                                    ) ?? [],
                                 area: selectedEvent.area ?? undefined,
                             }}
                         />

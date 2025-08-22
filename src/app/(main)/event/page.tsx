@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Navigation from "@/components/Navigation";
+import { Star } from "lucide-react";
+import { FavoritesPopup } from "@/components/ui/favorites-popup";
+import { useFavorites } from "@/hooks/useFavorites";
 
 interface Artist {
   id: string;
@@ -39,7 +42,12 @@ interface Event {
 
 export default function EventPage() {
   const [events, setEvents] = useState<Event[]>([]);
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
+  const [selectedDay, setSelectedDay] = useState<string>("all");
   const [loading, setLoading] = useState(true);
+  const [popupEvent, setPopupEvent] = useState<Event | null>(null);
+  const { addToFavorites, removeFromFavorites, isFavorite, getFavoriteEmail } =
+    useFavorites();
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -48,6 +56,7 @@ export default function EventPage() {
         if (res.ok) {
           const data = await res.json();
           setEvents(data);
+          setFilteredEvents(data);
         }
       } finally {
         setLoading(false);
@@ -55,6 +64,36 @@ export default function EventPage() {
     };
     fetchEvents();
   }, []);
+
+  useEffect(() => {
+    if (selectedDay === "all") {
+      setFilteredEvents(events);
+    } else {
+      const filtered = events.filter((event) => {
+        const eventDate = new Date(event.datestart);
+        const eventDay = eventDate.toLocaleDateString("fr-FR", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+        return eventDay === selectedDay;
+      });
+      setFilteredEvents(filtered);
+    }
+  }, [selectedDay, events]);
+
+  const uniqueDays = Array.from(
+    new Set(
+      events.map((event) => {
+        const eventDate = new Date(event.datestart);
+        return eventDate.toLocaleDateString("fr-FR", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+      })
+    )
+  ).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -120,8 +159,46 @@ export default function EventPage() {
     }
   };
 
-  // Grouper les événements par jour
-  const eventsByDay = events.reduce((acc, event) => {
+  const handleFavoriteClick = (event: Event) => {
+    if (isFavorite(event.id)) {
+      // Si déjà en favori, le retirer
+      removeFromFavorites(event.id);
+    } else {
+      // Si pas en favori, l'ajouter immédiatement et ouvrir la popup
+      addToFavorites(event.id);
+      setPopupEvent(event);
+    }
+  };
+
+  const handleAddMailAlert = async (email: string) => {
+    if (popupEvent) {
+      try {
+        const response = await fetch("/api/mail-alerts", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            eventId: popupEvent.id,
+          }),
+        });
+
+        if (response.ok) {
+          console.log("Alerte mail créée avec succès");
+          // Mettre à jour le favori avec l'email
+          addToFavorites(popupEvent.id, email);
+        } else {
+          console.error("Erreur lors de la création de l'alerte mail");
+        }
+      } catch (error) {
+        console.error("Erreur lors de la création de l'alerte mail:", error);
+      }
+      setPopupEvent(null);
+    }
+  };
+
+  const eventsByDay = filteredEvents.reduce((acc, event) => {
     const date = new Date(event.datestart);
     const dayKey = date.toLocaleDateString("fr-FR", {
       weekday: "long",
@@ -196,10 +273,49 @@ export default function EventPage() {
             PROGRAMME DU FESTIVAL
           </h2>
 
+          {/* Filtres par jour */}
+          <div className="mb-8 flex flex-wrap justify-center gap-4">
+            <button
+              onClick={() => setSelectedDay("all")}
+              className={`px-4 py-2 rounded-lg border transition-colors duration-300 ${
+                selectedDay === "all"
+                  ? "bg-blue-600/20 border-blue-400 text-blue-400"
+                  : "bg-black/40 border-gray-600 text-gray-300 hover:border-gray-500"
+              }`}
+            >
+              Tous les jours
+            </button>
+            {uniqueDays.map((day) => (
+              <button
+                key={day}
+                onClick={() => setSelectedDay(day)}
+                className={`px-4 py-2 rounded-lg border transition-colors duration-300 ${
+                  selectedDay === day
+                    ? "bg-blue-600/20 border-blue-400 text-blue-400"
+                    : "bg-black/40 border-gray-600 text-gray-300 hover:border-gray-500"
+                }`}
+              >
+                {day}
+              </button>
+            ))}
+          </div>
+
           {loading ? (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
               <p className="mt-4 text-lg">Chargement des événements...</p>
+            </div>
+          ) : Object.keys(eventsByDay).length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-lg text-gray-400">
+                Aucun événement trouvé pour le jour sélectionné.
+              </p>
+              <button
+                onClick={() => setSelectedDay("all")}
+                className="mt-4 px-4 py-2 bg-blue-600/20 border border-blue-400/30 rounded text-blue-400 hover:bg-blue-600/30 transition-colors"
+              >
+                Voir tous les événements
+              </button>
             </div>
           ) : (
             <div className="space-y-12">
@@ -215,6 +331,20 @@ export default function EventPage() {
                         <div className="absolute inset-0 rounded-lg blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-blue-500/20 to-cyan-500/20" />
 
                         <div className="relative bg-black/80 border border-blue-400/40 rounded-lg p-6 h-full hover:border-blue-400 transition-colors duration-300 flex flex-col">
+                          {/* Bouton favoris */}
+                          <button
+                            onClick={() => handleFavoriteClick(event)}
+                            className="absolute top-4 right-4 z-10 p-2 bg-black/50 rounded-full hover:bg-black/70 transition-colors"
+                          >
+                            <Star
+                              className={`w-5 h-5 transition-colors ${
+                                isFavorite(event.id)
+                                  ? "text-yellow-400 fill-current"
+                                  : "text-gray-400 hover:text-yellow-400"
+                              }`}
+                            />
+                          </button>
+
                           {/* Image de l'area */}
                           <div className="w-full h-64 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
                             {event.area?.imgurl ? (
@@ -314,6 +444,14 @@ export default function EventPage() {
           )}
         </div>
       </div>
+
+      {/* Popup des favoris */}
+      <FavoritesPopup
+        isOpen={!!popupEvent}
+        onClose={() => setPopupEvent(null)}
+        eventName={popupEvent?.name || ""}
+        onConfirm={handleAddMailAlert}
+      />
     </div>
   );
 }

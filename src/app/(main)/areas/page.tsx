@@ -15,6 +15,8 @@ interface Area {
 
 export default function AreasPage() {
   const [areas, setAreas] = useState<Area[]>([]);
+  const [filteredAreas, setFilteredAreas] = useState<Area[]>([]);
+  const [selectedType, setSelectedType] = useState<string>("all");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,6 +26,7 @@ export default function AreasPage() {
         if (res.ok) {
           const data = await res.json();
           setAreas(data);
+          setFilteredAreas(data);
         }
       } finally {
         setLoading(false);
@@ -31,6 +34,19 @@ export default function AreasPage() {
     };
     fetchAreas();
   }, []);
+
+  useEffect(() => {
+    if (selectedType === "all") {
+      setFilteredAreas(areas);
+    } else {
+      const filtered = areas.filter((area) => area.type === selectedType);
+      setFilteredAreas(filtered);
+    }
+  }, [selectedType, areas]);
+
+  const uniqueTypes = Array.from(
+    new Set(areas.map((area) => area.type))
+  ).sort();
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-black text-white">
@@ -92,15 +108,58 @@ export default function AreasPage() {
             LES EMPLACEMENTS
           </h2>
 
+          {/* Filtres par type */}
+          <div className="mb-8 flex flex-wrap justify-center gap-4">
+            <button
+              onClick={() => setSelectedType("all")}
+              className={`px-4 py-2 rounded-lg border transition-colors duration-300 ${
+                selectedType === "all"
+                  ? "bg-blue-600/20 border-blue-400 text-blue-400"
+                  : "bg-black/40 border-gray-600 text-gray-300 hover:border-gray-500"
+              }`}
+            >
+              Tous les types
+            </button>
+            {uniqueTypes.map((type) => (
+              <button
+                key={type}
+                onClick={() => setSelectedType(type)}
+                className={`px-4 py-2 rounded-lg border transition-colors duration-300 ${
+                  selectedType === type
+                    ? "bg-blue-600/20 border-blue-400 text-blue-400"
+                    : "bg-black/40 border-gray-600 text-gray-300 hover:border-gray-500"
+                }`}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+
           {loading ? (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
               <p className="mt-4 text-lg">Chargement des espaces...</p>
             </div>
+          ) : filteredAreas.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-lg text-gray-400">
+                Aucun espace trouvé pour le type &quot;{selectedType}&quot;.
+              </p>
+              <button
+                onClick={() => setSelectedType("all")}
+                className="mt-4 px-4 py-2 bg-blue-600/20 border border-blue-400/30 rounded text-blue-400 hover:bg-blue-600/30 transition-colors"
+              >
+                Voir tous les espaces
+              </button>
+            </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 auto-rows-fr">
-              {areas.map((area) => (
-                <Link key={area.id} href={`/areas/${area.id}`} className="relative group">
+              {filteredAreas.map((area) => (
+                <Link
+                  key={area.id}
+                  href={`/areas/${area.id}`}
+                  className="relative group"
+                >
                   {/* Glow */}
                   <div className="absolute inset-0 rounded-lg blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-blue-500/20 to-cyan-500/20" />
 

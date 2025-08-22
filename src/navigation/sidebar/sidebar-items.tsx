@@ -41,12 +41,12 @@ export const sidebarItems: NavGroup[] = [
         label: "Tableaux de bord",
         items: [
             {
-                title: "Défaut",
-                url: "/dashboard/default",
+                title: "Accueil",
+                url: "/dashboard",
                 icon: LayoutDashboard,
             },
             {
-                title: "Logistics",
+                title: "Utilisateurs",
                 url: "/dashboard/user",
                 icon: User,
             },

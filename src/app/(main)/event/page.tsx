@@ -42,6 +42,8 @@ interface Event {
 
 export default function EventPage() {
   const [events, setEvents] = useState<Event[]>([]);
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
+  const [selectedDay, setSelectedDay] = useState<string>("all");
   const [loading, setLoading] = useState(true);
   const [popupEvent, setPopupEvent] = useState<Event | null>(null);
   const { addToFavorites, removeFromFavorites, isFavorite, getFavoriteEmail } =
@@ -54,6 +56,7 @@ export default function EventPage() {
         if (res.ok) {
           const data = await res.json();
           setEvents(data);
+          setFilteredEvents(data);
         }
       } finally {
         setLoading(false);
@@ -61,6 +64,36 @@ export default function EventPage() {
     };
     fetchEvents();
   }, []);
+
+  useEffect(() => {
+    if (selectedDay === "all") {
+      setFilteredEvents(events);
+    } else {
+      const filtered = events.filter((event) => {
+        const eventDate = new Date(event.datestart);
+        const eventDay = eventDate.toLocaleDateString("fr-FR", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+        return eventDay === selectedDay;
+      });
+      setFilteredEvents(filtered);
+    }
+  }, [selectedDay, events]);
+
+  const uniqueDays = Array.from(
+    new Set(
+      events.map((event) => {
+        const eventDate = new Date(event.datestart);
+        return eventDate.toLocaleDateString("fr-FR", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+      })
+    )
+  ).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -165,8 +198,7 @@ export default function EventPage() {
     }
   };
 
-  // Grouper les événements par jour
-  const eventsByDay = events.reduce((acc, event) => {
+  const eventsByDay = filteredEvents.reduce((acc, event) => {
     const date = new Date(event.datestart);
     const dayKey = date.toLocaleDateString("fr-FR", {
       weekday: "long",
@@ -241,10 +273,49 @@ export default function EventPage() {
             PROGRAMME DU FESTIVAL
           </h2>
 
+          {/* Filtres par jour */}
+          <div className="mb-8 flex flex-wrap justify-center gap-4">
+            <button
+              onClick={() => setSelectedDay("all")}
+              className={`px-4 py-2 rounded-lg border transition-colors duration-300 ${
+                selectedDay === "all"
+                  ? "bg-blue-600/20 border-blue-400 text-blue-400"
+                  : "bg-black/40 border-gray-600 text-gray-300 hover:border-gray-500"
+              }`}
+            >
+              Tous les jours
+            </button>
+            {uniqueDays.map((day) => (
+              <button
+                key={day}
+                onClick={() => setSelectedDay(day)}
+                className={`px-4 py-2 rounded-lg border transition-colors duration-300 ${
+                  selectedDay === day
+                    ? "bg-blue-600/20 border-blue-400 text-blue-400"
+                    : "bg-black/40 border-gray-600 text-gray-300 hover:border-gray-500"
+                }`}
+              >
+                {day}
+              </button>
+            ))}
+          </div>
+
           {loading ? (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
               <p className="mt-4 text-lg">Chargement des événements...</p>
+            </div>
+          ) : Object.keys(eventsByDay).length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-lg text-gray-400">
+                Aucun événement trouvé pour le jour sélectionné.
+              </p>
+              <button
+                onClick={() => setSelectedDay("all")}
+                className="mt-4 px-4 py-2 bg-blue-600/20 border border-blue-400/30 rounded text-blue-400 hover:bg-blue-600/30 transition-colors"
+              >
+                Voir tous les événements
+              </button>
             </div>
           ) : (
             <div className="space-y-12">

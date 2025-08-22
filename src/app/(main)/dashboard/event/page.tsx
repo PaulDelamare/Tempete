@@ -234,21 +234,23 @@ export default function EventPage() {
                     setReload((prev) => prev + 1);
                 }}
             >
-                {selectedEvent && (
-                    <EventForm
-                        event={{
-                            ...selectedEvent,
-                            tagsJoin:
-                                selectedEvent.tagsJoin?.map((t) => ({
-                                    tag: t.tag,
-                                })) ?? [],
-                            artists:
-                                selectedEvent.artists?.map((a) => a.artist) ??
-                                [],
-                            area: selectedEvent.area ?? undefined,
-                        }}
-                    />
-                )}
+                <div style={{ maxHeight: "80vh", overflowY: "auto" }}>
+                    {selectedEvent && (
+                        <EventForm
+                            event={{
+                                ...selectedEvent,
+                                tagsJoin:
+                                    selectedEvent.tagsJoin?.map((t) => ({
+                                        tag: t.tag,
+                                    })) ?? [],
+                                artists:
+                                    selectedEvent.artists?.map((a) => a.artist) ??
+                                    [],
+                                area: selectedEvent.area ?? undefined,
+                            }}
+                        />
+                    )}
+                </div>
             </EventModal>
         </div>
     );

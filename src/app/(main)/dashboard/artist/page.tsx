@@ -43,29 +43,37 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Artist, Tag } from "@/generated/prisma";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function ArtistPage() {
     const [modalOpen, setModalOpen] = useState(false);
-    const [artists, setArtists] = useState<(Artist & {
-        tagsJoin: {
-            tag: Tag
-        }
-    })[]>([]);
-    const [selectedArtist, setSelectedArtist] = useState<(Artist & { tagsJoin: { tag: Tag } }) | null>(null);
+    const [artists, setArtists] = useState<
+        (Artist & {
+            tagsJoin: {
+                tag: Tag;
+            };
+        })[]
+    >([]);
+    const [selectedArtist, setSelectedArtist] = useState<
+        (Artist & { tagsJoin: { tag: Tag } }) | null
+    >(null);
 
     const [reload, setReload] = useState(0);
 
     const fetchArtists = async () => {
-
         const res = await fetch("http://localhost:3000/api/artist", {
             cache: "no-store",
         });
 
         const data = (await res.json()) as (Artist & {
             tagsJoin: {
-                tag: Tag
-            }
+                tag: Tag;
+            };
         })[];
 
         setArtists(data);
@@ -110,7 +118,7 @@ export default function ArtistPage() {
         });
     }, [artists, filter]);
 
-    const artistConfigs: ColumnConfig<(Artist & { tagsJoin: { tag: Tag } })>[] = [
+    const artistConfigs: ColumnConfig<Artist & { tagsJoin: { tag: Tag } }>[] = [
         { key: "name", title: "Nom", sortable: true },
         {
             key: "nickname",
@@ -150,14 +158,20 @@ export default function ArtistPage() {
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <Badge variant="secondary" className="cursor-pointer">
+                                        <Badge
+                                            variant="secondary"
+                                            className="cursor-pointer"
+                                        >
                                             +{hiddenCount}
                                         </Badge>
                                     </TooltipTrigger>
                                     <TooltipContent className="max-w-xs">
                                         <div className="flex flex-wrap gap-1">
                                             {tagsJoin.slice(3).map((tj) => (
-                                                <Badge key={tj.tag.id} variant="outline">
+                                                <Badge
+                                                    key={tj.tag.id}
+                                                    variant="outline"
+                                                >
                                                     {tj.tag.name}
                                                 </Badge>
                                             ))}
@@ -244,7 +258,9 @@ export default function ArtistPage() {
         },
     ];
 
-    const artistColumns = buildColumnsFromConfig<(Artist & { tagsJoin: { tag: Tag } })>(artistConfigs);
+    const artistColumns = buildColumnsFromConfig<
+        Artist & { tagsJoin: { tag: Tag } }
+    >(artistConfigs);
 
     const table = useDataTableInstance({
         data: filteredData,
@@ -305,7 +321,9 @@ export default function ArtistPage() {
                             links: selectedArtist.links ?? [],
                             created_at: new Date(selectedArtist.created_at),
                             modified_at: new Date(selectedArtist.modified_at),
-                            tagsJoin: Array.isArray(selectedArtist.tagsJoin) ? selectedArtist.tagsJoin : [],
+                            tagsJoin: Array.isArray(selectedArtist.tagsJoin)
+                                ? selectedArtist.tagsJoin
+                                : [],
                         }}
                     />
                 )}

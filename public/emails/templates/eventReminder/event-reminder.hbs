@@ -1,0 +1,39 @@
+{{> header}}
+
+<div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif; background-color: #000; color: #fff;">
+    
+    <!-- Header avec logo -->
+    <div style="text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #1e3a8a, #3b82f6); border-radius: 10px;">
+        <h1 style="margin: 0; color: #fff; font-size: 24px; font-weight: bold;">🚨 ALERTE TEMPÊTE</h1>
+        <p style="margin: 10px 0 0 0; color: #e0e7ff; font-size: 16px;">Votre événement commence bientôt !</p>
+    </div>
+
+    <!-- Contenu principal -->
+    <div style="background-color: #111; padding: 25px; border-radius: 10px; border: 1px solid #333; margin-bottom: 20px;">
+        <h2 style="color: #3b82f6; margin: 0 0 20px 0; font-size: 20px;">{{eventName}}</h2>
+        
+        <div style="background-color: #1f2937; padding: 20px; border-radius: 8px; border-left: 4px solid #3b82f6; margin-bottom: 20px;">
+            <p style="margin: 0 0 15px 0; color: #e5e7eb; font-size: 16px;">
+                <strong>⏰ Début dans :</strong> <span style="color: #fbbf24; font-size: 18px;">{{minutesLeft}} minutes</span>
+            </p>
+            <p style="margin: 0; color: #d1d5db; font-size: 14px;">
+                <strong>📅 Date et heure :</strong> {{eventStart}}
+            </p>
+        </div>
+
+        <div style="text-align: center; margin: 20px 0;">
+            <a href="{{siteUrl}}/map" style="display: inline-block; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; transition: all 0.3s ease;">
+                🗺️ VOIR SUR LA CARTE
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align: center; padding: 20px; color: #9ca3af; font-size: 12px; border-top: 1px solid #333;">
+        <p style="margin: 0;">Vous recevez cet email car vous êtes inscrit aux alertes Tempête</p>
+        <p style="margin: 5px 0 0 0;">© 2025 Tempête - Tous droits réservés</p>
+    </div>
+
+</div>
+
+{{> footer}}
